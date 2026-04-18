@@ -81,7 +81,7 @@ body{
   z-index:1000;
   display:flex;flex-direction:column;
   transition:height 0.3s cubic-bezier(0.25,0.8,0.25,1);
-  height:42vh;
+  height:50vh;
   padding-bottom:env(safe-area-inset-bottom,20px);
 }
 
@@ -101,16 +101,93 @@ body{
 }
 
 .sheet-title{
-  font-size:20px;
+  font-size:22px;
   font-weight:700;
   color:#1c1c1e;
 }
 
-/* 凡例（青白グレー基調、赤は混雑警告のみ） */
+/* Apple「探す」UI（みーちゃん表示） */
+.person-item{
+  display:flex;
+  align-items:center;
+  padding:12px 20px;
+  border-bottom:0.5px solid #e5e5ea;
+  background:rgba(255,255,255,0.5);
+  cursor:pointer;
+}
+
+.person-item:active{
+  background:rgba(0,0,0,0.05);
+}
+
+.person-icon-wrapper{
+  position:relative;
+  width:48px;height:48px;
+  border-radius:50%;
+  background:linear-gradient(135deg, #a0c4ff, #4361ee);
+  display:flex;justify-content:center;align-items:center;
+  flex-shrink:0;
+  margin-right:14px;
+  box-shadow:0 2px 8px rgba(67,97,238,0.3);
+}
+
+.person-icon-head{
+  width:16px;height:16px;
+  background:#fff;
+  border-radius:50%;
+  position:absolute;top:8px;
+}
+
+.person-icon-body{
+  width:30px;height:18px;
+  background:#fff;
+  border-radius:15px 15px 0 0;
+  position:absolute;bottom:4px;
+}
+
+.person-star{
+  position:absolute;
+  bottom:-2px;right:-2px;
+  width:18px;height:18px;
+  background:#ffcc00;
+  border-radius:50%;
+  border:2px solid #fff;
+  display:flex;justify-content:center;align-items:center;
+  box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+
+.person-star-inner{
+  width:10px;height:10px;
+  background:#fff;
+  clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.person-info{flex:1;}
+
+.person-name{
+  font-size:17px;
+  font-weight:700;
+  color:#1c1c1e;
+  margin-bottom:2px;
+}
+
+.person-location{
+  font-size:13px;
+  color:#8e8e93;
+  line-height:1.3;
+}
+
+.person-distance{
+  font-size:15px;
+  color:#8e8e93;
+  font-weight:500;
+}
+
+/* 凡例 */
 .legend{
   display:flex;
   gap:12px;
-  padding:0 20px 8px;
+  padding:12px 20px 8px;
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
 }
@@ -178,12 +255,11 @@ body{
   min-width:48px;text-align:center;
 }
 
-/* ステータス色（メイリオ・青白グレー基調・赤は重要箇所のみ） */
-.status-empty  {background:#e8f2ff;color:#007aff;}  /* 空き（青） */
-.status-light  {background:#f0f8f0;color:#34c759;}  /* やや空き（緑） */
-.status-normal {background:#f2f2f7;color:#8e8e93;}  /* 普通（グレー） */
-.status-busy   {background:#fff2f0;color:#ff9500;}  /* 混雑（オレンジ） */
-.status-full   {background:#fff0f0;color:#ff3b30;}  /* 非常に混雑（赤・警告色） */
+.status-empty  {background:#e8f2ff;color:#007aff;}
+.status-light  {background:#f0f8f0;color:#34c759;}
+.status-normal {background:#f2f2f7;color:#8e8e93;}
+.status-busy   {background:#fff2f0;color:#ff9500;}
+.status-full   {background:#fff0f0;color:#ff3b30;}
 
 /* ポップアップ */
 .leaflet-popup-content-wrapper{
@@ -220,7 +296,21 @@ body{
   <div class="handle" id="handle"></div>
   
   <div class="sheet-header">
-    <div class="sheet-title">混雑状況</div>
+    <div class="sheet-title">人を探す</div>
+  </div>
+
+  <!-- みーちゃん表示（Apple探すアプリ準拠） -->
+  <div class="person-item" onclick="focusPerson()">
+    <div class="person-icon-wrapper">
+      <div class="person-icon-head"></div>
+      <div class="person-icon-body"></div>
+      <div class="person-star"><div class="person-star-inner"></div></div>
+    </div>
+    <div class="person-info">
+      <div class="person-name">みーちゃん</div>
+      <div class="person-location" id="mi-location">神奈川県茅ヶ崎市・<span id="mi-time">たった今</span></div>
+    </div>
+    <div class="person-distance">0 km</div>
   </div>
   
   <div class="legend">
@@ -242,7 +332,7 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-// 茅ヶ崎エリア主要施設（駅から半径5km）
+// 施設データ
 const FACILITIES = [
   {id:'chigasaki-sta', name:'茅ヶ崎駅', sub:'JR東海道線', lat:35.3304, lng:139.4064, weight:2.0, type:'station'},
   {id:'lusca', name:'ラスカ茅ヶ崎', sub:'茅ヶ崎駅直結', lat:35.3310, lng:139.4072, weight:1.6, type:'shopping'},
@@ -250,11 +340,13 @@ const FACILITIES = [
   {id:'aeon', name:'イオン茅ヶ崎中央店', sub:'茅ヶ崎市茶屋町', lat:35.3318, lng:139.4098, weight:1.5, type:'shopping'},
   {id:'cainz', name:'カインズ茅ヶ崎店', sub:'茅ヶ崎市矢畑', lat:35.3401, lng:139.4312, weight:1.1, type:'retail'},
   {id:'city-hall', name:'茅ヶ崎市役所', sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333, lng:139.4044, weight:0.8, type:'office'},
-  {id:'beach', name:'サザンビーチちがさき', sub:'茅ヶ崎海岸', lat:35.3156, lng:139.4057, weight:1.2, type:'outdoor'},
-  {id:'tsujido', name:'辻堂駅', sub:'JR東海道線', lat:35.3375, lng:139.4450, weight:1.4, type:'station'}
+  {id:'beach', name:'サザンビーチちがさき', sub:'茅ヶ崎海岸', lat:35.3156, lng:139.4057, weight:1.2, type:'outdoor'}
 ];
 
-// 混雑パターン（時間帯・曜日・施設タイプ別）
+// みーちゃん位置（茅ヶ崎駅北側）
+const PERSON_LAT = 35.3325;
+const PERSON_LNG = 139.4060;
+
 const PATTERNS = {
   station:{
     weekday:[0.1,0.1,0.1,0.1,0.2,0.4,0.85,0.95,0.65,0.4,0.3,0.35,0.45,0.35,0.3,0.4,0.65,0.85,0.95,0.7,0.5,0.35,0.2,0.1],
@@ -280,8 +372,8 @@ const PATTERNS = {
 
 let map, heatLayer;
 const markers = {};
+let personMarker;
 
-// 混雑度計算
 function getCongestion(facility){
   const now = new Date();
   const h = now.getHours();
@@ -290,14 +382,12 @@ function getCongestion(facility){
   const key = isWeekend?'weekend':'weekday';
   const base = pattern[key][h];
   
-  // 施設固有の変動（時間経過で変化するが急激すぎない）
   const seed = (facility.id.charCodeAt(0)*7 + Math.floor(now.getTime()/(5*60*1000))*3) % 100 / 100;
   const variation = (seed - 0.5) * 0.25;
   
   return Math.max(0.05, Math.min(0.95, (base * facility.weight) + variation));
 }
 
-// ステータス判定
 function getStatusInfo(level){
   if(level<0.2) return {label:'空き',      class:'status-empty',  color:'#007aff'};
   if(level<0.4) return {label:'やや空き',  class:'status-light',  color:'#34c759'};
@@ -306,60 +396,55 @@ function getStatusInfo(level){
                return {label:'非常に混雑', class:'status-full',   color:'#ff3b30'};
 }
 
-// 地図初期化
 function initMap(){
-  map = L.map('map',{
-    zoomControl:false,
-    attributionControl:false
-  }).setView([35.328, 139.425], 13);
-
+  map = L.map('map',{zoomControl:false, attributionControl:false}).setView([PERSON_LAT, PERSON_LNG], 14);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-  
-  // 地図タップでシート縮小
   map.on('click', ()=>setSheetHeight('small'));
+
+  // みーちゃんピン（Apple探すアプリ準拠）
+  const personIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, #a0c4ff, #4361ee);border:3px solid #fff;box-shadow:0 4px 12px rgba(67,97,238,0.4);display:flex;justify-content:center;align-items:center;">
+        <div style="width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:6px;"></div>
+        <div style="width:26px;height:16px;background:#fff;border-radius:13px 13px 0 0;position:absolute;bottom:4px;"></div>
+      </div>
+    `,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20]
+  });
+  
+  personMarker = L.marker([PERSON_LAT, PERSON_LNG], {icon: personIcon, zIndexOffset: 1000}).addTo(map);
 }
 
-// ヒートマップ更新
+function focusPerson() {
+  map.setView([PERSON_LAT, PERSON_LNG], 15, {animate:true});
+  setSheetHeight('small');
+}
+
 function updateHeatmap(){
   if(heatLayer) map.removeLayer(heatLayer);
-  
   const heatData = [];
   FACILITIES.forEach(f=>{
     const level = getCongestion(f);
     if(level < 0.1) return;
-    
-    // 中心点 + 周辺散布点
     const pointCount = Math.max(5, Math.floor(level * 35));
     for(let i=0; i<pointCount; i++){
       const angle = (Math.PI * 2 * i) / pointCount;
       const radius = Math.random() * 0.007;
-      heatData.push([
-        f.lat + Math.sin(angle) * radius * 0.8,
-        f.lng + Math.cos(angle) * radius,
-        level
-      ]);
+      heatData.push([f.lat + Math.sin(angle) * radius * 0.8, f.lng + Math.cos(angle) * radius, level]);
     }
     heatData.push([f.lat, f.lng, level]);
   });
 
   heatLayer = L.heatLayer(heatData, {
-    radius: 40,
-    blur: 25,
-    maxZoom: 16,
-    gradient: {
-      0.0: '#007aff',   // 青（空き）
-      0.35: '#34c759',  // 緑（やや空き）
-      0.55: '#8e8e93',  // グレー（普通）
-      0.75: '#ff9500',  // オレンジ（混雑）
-      1.0: '#ff3b30'    // 赤（非常に混雑・警告色）
-    }
+    radius: 40, blur: 25, maxZoom: 16,
+    gradient: {0.0:'#007aff', 0.35:'#34c759', 0.55:'#8e8e93', 0.75:'#ff9500', 1.0:'#ff3b30'}
   }).addTo(map);
 }
 
-// マーカー更新
 function updateMarkers(){
   Object.values(markers).forEach(m => map.removeLayer(m));
-
   FACILITIES.forEach(f=>{
     const level = getCongestion(f);
     const status = getStatusInfo(level);
@@ -367,72 +452,59 @@ function updateMarkers(){
 
     const icon = L.divIcon({
       className: '',
-      html: `<div style="
-        width:9px;height:9px;
-        border-radius:50%;
-        background:${status.color};
-        border:2px solid white;
-        box-shadow:0 0 5px rgba(0,0,0,0.2);
-      "></div>`,
-      iconSize: [9,9],
-      iconAnchor: [4.5,4.5]
+      html: `<div style="width:9px;height:9px;border-radius:50%;background:${status.color};border:2px solid white;box-shadow:0 0 5px rgba(0,0,0,0.2);"></div>`,
+      iconSize: [9,9], iconAnchor: [4.5,4.5]
     });
 
-    const marker = L.marker([f.lat, f.lng], {icon})
-      .addTo(map)
-      .bindPopup(`
-        <div class="popup-name">${f.name}</div>
-        <div style="color:#8e8e93;font-size:12px;margin-bottom:4px">${f.sub}</div>
-        <div class="popup-status" style="color:${status.color}">${status.label}（${percent}%）</div>
-      `);
-
+    const marker = L.marker([f.lat, f.lng], {icon}).addTo(map)
+      .bindPopup(`<div class="popup-name">${f.name}</div><div style="color:#8e8e93;font-size:12px;margin-bottom:4px">${f.sub}</div><div class="popup-status" style="color:${status.color}">${status.label}（${percent}%）</div>`);
     marker.on('click', ()=>setSheetHeight('large'));
     markers[f.id] = marker;
   });
 }
 
-// 施設リスト更新
 function updateList(){
   const list = document.getElementById('facility-list');
   list.innerHTML = '';
-
   FACILITIES.forEach(f=>{
     const level = getCongestion(f);
     const status = getStatusInfo(level);
-    const percent = Math.round(level * 100);
-
     const item = document.createElement('div');
     item.className = 'facility-item';
     item.innerHTML = `
       <div class="status-dot" style="background:${status.color}"></div>
-      <div class="facility-info">
-        <div class="facility-name">${f.name}</div>
-        <div class="facility-sub">${f.sub}</div>
-      </div>
+      <div class="facility-info"><div class="facility-name">${f.name}</div><div class="facility-sub">${f.sub}</div></div>
       <span class="status-badge ${status.class}">${status.label}</span>
     `;
-
-    // タップで地図移動
     item.addEventListener('click', ()=>{
       map.setView([f.lat, f.lng], 15, {animate:true});
       markers[f.id] && markers[f.id].openPopup();
       setSheetHeight('small');
     });
-
     list.appendChild(item);
   });
 }
 
-// 時刻表示更新
 function updateTime(){
   const now = new Date();
   const weekdays = ['日','月','火','水','木','金','土'];
-  const timeStr = `${now.getMonth()+1}月${now.getDate()}日（${weekdays[now.getDay()]}）${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 更新`;
-  document.getElementById('current-time').textContent = timeStr;
+  document.getElementById('current-time').textContent = `${now.getMonth()+1}月${now.getDate()}日（${weekdays[now.getDay()]}）${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 更新`;
+  
+  // みーちゃん時刻更新
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+  const totalSeconds = minutes * 60 + seconds;
+  
+  let timeText;
+  if(totalSeconds < 60) timeText = 'たった今';
+  else if(totalSeconds < 300) timeText = '数分前';
+  else if(totalSeconds < 1800) timeText = `${Math.floor(totalSeconds/60)}分前`;
+  else timeText = `${Math.floor(totalSeconds/3600)}時間前`;
+  
+  document.getElementById('mi-time').textContent = timeText;
 }
 
-// ボトムシート高さ制御
-const HEIGHTS = {small:'25vh', mid:'42vh', large:'70vh'};
+const HEIGHTS = {small:'25vh', mid:'50vh', large:'75vh'};
 let currentSize = 'mid';
 
 function setSheetHeight(size){
@@ -440,7 +512,6 @@ function setSheetHeight(size){
   document.getElementById('sheet').style.height = HEIGHTS[size];
 }
 
-// ドラッグ操作
 (function setupDrag(){
   const sheet = document.getElementById('sheet');
   const handle = document.getElementById('handle');
@@ -452,26 +523,21 @@ function setSheetHeight(size){
     startH = sheet.offsetHeight;
     sheet.style.transition = 'none';
   }
-
   function onMove(e){
     if(!dragging) return;
     e.preventDefault();
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     const diff = startY - y;
-    const newH = Math.max(80, Math.min(window.innerHeight*0.8, startH + diff));
-    sheet.style.height = newH + 'px';
+    sheet.style.height = Math.max(80, Math.min(window.innerHeight*0.8, startH + diff)) + 'px';
   }
-
   function onEnd(){
     if(!dragging) return;
     dragging = false;
     sheet.style.transition = 'height 0.3s cubic-bezier(0.25,0.8,0.25,1)';
-    
-    const h = sheet.offsetHeight;
-    const wh = window.innerHeight;
-    if(h < wh*0.32)      setSheetHeight('small');
-    else if(h < wh*0.55) setSheetHeight('mid');
-    else                 setSheetHeight('large');
+    const h = sheet.offsetHeight, wh = window.innerHeight;
+    if(h < wh*0.35) setSheetHeight('small');
+    else if(h < wh*0.6) setSheetHeight('mid');
+    else setSheetHeight('large');
   }
 
   handle.addEventListener('touchstart', onStart, {passive:true});
@@ -482,7 +548,6 @@ function setSheetHeight(size){
   document.addEventListener('mouseup', onEnd);
 })();
 
-// 全体更新
 function updateAll(){
   updateTime();
   updateHeatmap();
@@ -490,11 +555,8 @@ function updateAll(){
   updateList();
 }
 
-// 初期化
 initMap();
 updateAll();
-
-// 5分ごと自動更新
 setInterval(updateAll, 5*60*1000);
 </script>
 </body>
