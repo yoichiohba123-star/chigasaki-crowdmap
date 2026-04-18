@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="茅ヶ崎混雑マップ">
+<title>茅ヶ崎エリア混雑マップ</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+body{
+  font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;
+  background:#f2f2f7;
+  overflow:hidden;
+  height:100vh;
+  height:100dvh;
+}
+
+#map{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:1;
+}
+
+/* ヘッダー（Apple探すアプリ準拠） */
+.header{
+  position:absolute;
+  top:0;left:0;width:100%;
+  background:rgba(255,255,255,0.94);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  padding:env(safe-area-inset-top,44px) 20px 12px;
+  z-index:1000;
+  border-bottom:0.5px solid rgba(0,0,0,0.1);
+}
+
+.header-content{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+}
+
+.header h1{
+  font-size:17px;
+  font-weight:700;
+  color:#1c1c1e;
+  letter-spacing:-0.3px;
+}
+
+.header .time{
+  font-size:12px;
+  color:#8e8e93;
+  margin-top:2px;
+}
+
+.refresh-btn{
+  width:32px;height:32px;
+  border-radius:50%;
+  background:#007aff;
+  border:none;
+  color:white;
+  font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,122,255,0.3);
+}
+
+/* ボトムシート */
+.bottom-sheet{
+  position:absolute;
+  bottom:0;left:0;width:100%;
+  background:rgba(255,255,255,0.96);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-radius:16px 16px 0 0;
+  box-shadow:0 -2px 20px rgba(0,0,0,0.12);
+  z-index:1000;
+  display:flex;flex-direction:column;
+  transition:height 0.3s cubic-bezier(0.25,0.8,0.25,1);
+  height:42vh;
+  padding-bottom:env(safe-area-inset-bottom,20px);
+}
+
+.handle{
+  width:36px;height:4px;
+  background:#d1d1d6;
+  border-radius:2px;
+  margin:8px auto 0;
+  cursor:grab;
+}
+
+.sheet-header{
+  padding:12px 20px 8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.sheet-title{
+  font-size:20px;
+  font-weight:700;
+  color:#1c1c1e;
+}
+
+/* 凡例（青白グレー基調、赤は混雑警告のみ） */
+.legend{
+  display:flex;
+  gap:12px;
+  padding:0 20px 8px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.legend::-webkit-scrollbar{display:none;}
+
+.legend-item{
+  display:flex;align-items:center;gap:4px;
+  white-space:nowrap;
+  font-size:11px;color:#48484a;font-weight:500;
+}
+
+.legend-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+}
+
+.divider{
+  height:0.5px;
+  background:#e5e5ea;
+  margin:0 20px 8px;
+}
+
+/* 施設リスト */
+.facility-scroll{
+  flex:1;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:0 20px;
+}
+
+.facility-scroll::-webkit-scrollbar{display:none;}
+
+.facility-item{
+  display:flex;align-items:center;
+  padding:10px 0;
+  border-bottom:0.5px solid #f0f0f5;
+  gap:12px;
+  cursor:pointer;
+}
+
+.facility-item:last-child{border-bottom:none;}
+.facility-item:active{background:rgba(0,0,0,0.03);border-radius:8px;margin:0 -8px;padding:10px 8px;}
+
+.status-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  box-shadow:0 0 4px rgba(0,0,0,0.15);
+}
+
+.facility-info{flex:1;min-width:0;}
+
+.facility-name{
+  font-size:15px;font-weight:500;color:#1c1c1e;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.facility-sub{
+  font-size:12px;color:#8e8e93;margin-top:1px;
+}
+
+.status-badge{
+  font-size:12px;font-weight:600;
+  padding:3px 8px;border-radius:8px;
+  min-width:48px;text-align:center;
+}
+
+/* ステータス色（メイリオ・青白グレー基調・赤は重要箇所のみ） */
+.status-empty  {background:#e8f2ff;color:#007aff;}  /* 空き（青） */
+.status-light  {background:#f0f8f0;color:#34c759;}  /* やや空き（緑） */
+.status-normal {background:#f2f2f7;color:#8e8e93;}  /* 普通（グレー） */
+.status-busy   {background:#fff2f0;color:#ff9500;}  /* 混雑（オレンジ） */
+.status-full   {background:#fff0f0;color:#ff3b30;}  /* 非常に混雑（赤・警告色） */
+
+/* ポップアップ */
+.leaflet-popup-content-wrapper{
+  border-radius:12px !important;
+  font-family:'Meiryo','Yu Gothic',sans-serif !important;
+  box-shadow:0 4px 16px rgba(0,0,0,0.15) !important;
+}
+
+.leaflet-popup-content{
+  margin:12px 14px !important;
+  font-size:14px !important;
+  line-height:1.5 !important;
+}
+
+.popup-name{font-weight:700;font-size:15px;color:#1c1c1e;margin-bottom:4px;}
+.popup-status{font-size:13px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-content">
+    <div>
+      <h1>茅ヶ崎エリア混雑マップ</h1>
+      <div class="time" id="current-time">読み込み中...</div>
+    </div>
+    <button class="refresh-btn" onclick="updateAll()" aria-label="更新">↻</button>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<div class="bottom-sheet" id="sheet">
+  <div class="handle" id="handle"></div>
+  
+  <div class="sheet-header">
+    <div class="sheet-title">混雑状況</div>
+  </div>
+  
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#007aff"></div>空き</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34c759"></div>やや空き</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8e8e93"></div>普通</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff9500"></div>混雑</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff3b30"></div>非常に混雑</div>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="facility-scroll" id="facility-list">
+    <div style="text-align:center;padding:20px;color:#8e8e93;">データを取得中...</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+<script>
+// 茅ヶ崎エリア主要施設（駅から半径5km）
+const FACILITIES = [
+  {id:'chigasaki-sta', name:'茅ヶ崎駅', sub:'JR東海道線', lat:35.3304, lng:139.4064, weight:2.0, type:'station'},
+  {id:'lusca', name:'ラスカ茅ヶ崎', sub:'茅ヶ崎駅直結', lat:35.3310, lng:139.4072, weight:1.6, type:'shopping'},
+  {id:'terrace', name:'テラスモール湘南', sub:'辻堂駅北口', lat:35.3379, lng:139.4479, weight:2.0, type:'shopping'},
+  {id:'aeon', name:'イオン茅ヶ崎中央店', sub:'茅ヶ崎市茶屋町', lat:35.3318, lng:139.4098, weight:1.5, type:'shopping'},
+  {id:'cainz', name:'カインズ茅ヶ崎店', sub:'茅ヶ崎市矢畑', lat:35.3401, lng:139.4312, weight:1.1, type:'retail'},
+  {id:'city-hall', name:'茅ヶ崎市役所', sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333, lng:139.4044, weight:0.8, type:'office'},
+  {id:'beach', name:'サザンビーチちがさき', sub:'茅ヶ崎海岸', lat:35.3156, lng:139.4057, weight:1.2, type:'outdoor'},
+  {id:'tsujido', name:'辻堂駅', sub:'JR東海道線', lat:35.3375, lng:139.4450, weight:1.4, type:'station'}
+];
+
+// 混雑パターン（時間帯・曜日・施設タイプ別）
+const PATTERNS = {
+  station:{
+    weekday:[0.1,0.1,0.1,0.1,0.2,0.4,0.85,0.95,0.65,0.4,0.3,0.35,0.45,0.35,0.3,0.4,0.65,0.85,0.95,0.7,0.5,0.35,0.2,0.1],
+    weekend:[0.1,0.1,0.1,0.1,0.1,0.2,0.25,0.35,0.45,0.55,0.65,0.7,0.75,0.7,0.65,0.6,0.65,0.6,0.5,0.4,0.3,0.2,0.15,0.1]
+  },
+  shopping:{
+    weekday:[0.1,0.1,0.1,0.1,0.1,0.1,0.15,0.25,0.4,0.6,0.7,0.8,0.75,0.65,0.7,0.8,0.75,0.65,0.45,0.3,0.2,0.1,0.1,0.1],
+    weekend:[0.1,0.1,0.1,0.1,0.1,0.15,0.25,0.45,0.65,0.8,0.9,0.95,0.95,0.9,0.85,0.85,0.8,0.7,0.5,0.35,0.2,0.15,0.1,0.1]
+  },
+  retail:{
+    weekday:[0,0,0,0,0,0,0,0.2,0.35,0.5,0.55,0.6,0.5,0.45,0.55,0.65,0.6,0.5,0.35,0.2,0.1,0,0,0],
+    weekend:[0,0,0,0,0,0,0.1,0.25,0.4,0.65,0.75,0.8,0.8,0.75,0.75,0.8,0.7,0.55,0.35,0.2,0.1,0,0,0]
+  },
+  office:{
+    weekday:[0,0,0,0,0,0,0,0.15,0.65,0.85,0.75,0.55,0.45,0.75,0.85,0.65,0.35,0.1,0,0,0,0,0,0],
+    weekend:[0,0,0,0,0,0,0,0,0.1,0.15,0.1,0.05,0,0,0,0,0,0,0,0,0,0,0,0]
+  },
+  outdoor:{
+    weekday:[0,0,0,0,0,0,0.1,0.15,0.25,0.35,0.45,0.5,0.45,0.4,0.45,0.4,0.3,0.2,0.1,0.05,0,0,0,0],
+    weekend:[0,0,0,0,0,0,0.1,0.2,0.35,0.55,0.7,0.8,0.8,0.75,0.7,0.65,0.5,0.35,0.2,0.1,0.05,0,0,0]
+  }
+};
+
+let map, heatLayer;
+const markers = {};
+
+// 混雑度計算
+function getCongestion(facility){
+  const now = new Date();
+  const h = now.getHours();
+  const isWeekend = now.getDay()===0||now.getDay()===6;
+  const pattern = PATTERNS[facility.type]||PATTERNS.shopping;
+  const key = isWeekend?'weekend':'weekday';
+  const base = pattern[key][h];
+  
+  // 施設固有の変動（時間経過で変化するが急激すぎない）
+  const seed = (facility.id.charCodeAt(0)*7 + Math.floor(now.getTime()/(5*60*1000))*3) % 100 / 100;
+  const variation = (seed - 0.5) * 0.25;
+  
+  return Math.max(0.05, Math.min(0.95, (base * facility.weight) + variation));
+}
+
+// ステータス判定
+function getStatusInfo(level){
+  if(level<0.2) return {label:'空き',      class:'status-empty',  color:'#007aff'};
+  if(level<0.4) return {label:'やや空き',  class:'status-light',  color:'#34c759'};
+  if(level<0.6) return {label:'普通',      class:'status-normal', color:'#8e8e93'};
+  if(level<0.8) return {label:'混雑',      class:'status-busy',   color:'#ff9500'};
+               return {label:'非常に混雑', class:'status-full',   color:'#ff3b30'};
+}
+
+// 地図初期化
+function initMap(){
+  map = L.map('map',{
+    zoomControl:false,
+    attributionControl:false
+  }).setView([35.328, 139.425], 13);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+  
+  // 地図タップでシート縮小
+  map.on('click', ()=>setSheetHeight('small'));
+}
+
+// ヒートマップ更新
+function updateHeatmap(){
+  if(heatLayer) map.removeLayer(heatLayer);
+  
+  const heatData = [];
+  FACILITIES.forEach(f=>{
+    const level = getCongestion(f);
+    if(level < 0.1) return;
+    
+    // 中心点 + 周辺散布点
+    const pointCount = Math.max(5, Math.floor(level * 35));
+    for(let i=0; i<pointCount; i++){
+      const angle = (Math.PI * 2 * i) / pointCount;
+      const radius = Math.random() * 0.007;
+      heatData.push([
+        f.lat + Math.sin(angle) * radius * 0.8,
+        f.lng + Math.cos(angle) * radius,
+        level
+      ]);
+    }
+    heatData.push([f.lat, f.lng, level]);
+  });
+
+  heatLayer = L.heatLayer(heatData, {
+    radius: 40,
+    blur: 25,
+    maxZoom: 16,
+    gradient: {
+      0.0: '#007aff',   // 青（空き）
+      0.35: '#34c759',  // 緑（やや空き）
+      0.55: '#8e8e93',  // グレー（普通）
+      0.75: '#ff9500',  // オレンジ（混雑）
+      1.0: '#ff3b30'    // 赤（非常に混雑・警告色）
+    }
+  }).addTo(map);
+}
+
+// マーカー更新
+function updateMarkers(){
+  Object.values(markers).forEach(m => map.removeLayer(m));
+
+  FACILITIES.forEach(f=>{
+    const level = getCongestion(f);
+    const status = getStatusInfo(level);
+    const percent = Math.round(level * 100);
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:9px;height:9px;
+        border-radius:50%;
+        background:${status.color};
+        border:2px solid white;
+        box-shadow:0 0 5px rgba(0,0,0,0.2);
+      "></div>`,
+      iconSize: [9,9],
+      iconAnchor: [4.5,4.5]
+    });
+
+    const marker = L.marker([f.lat, f.lng], {icon})
+      .addTo(map)
+      .bindPopup(`
+        <div class="popup-name">${f.name}</div>
+        <div style="color:#8e8e93;font-size:12px;margin-bottom:4px">${f.sub}</div>
+        <div class="popup-status" style="color:${status.color}">${status.label}（${percent}%）</div>
+      `);
+
+    marker.on('click', ()=>setSheetHeight('large'));
+    markers[f.id] = marker;
+  });
+}
+
+// 施設リスト更新
+function updateList(){
+  const list = document.getElementById('facility-list');
+  list.innerHTML = '';
+
+  FACILITIES.forEach(f=>{
+    const level = getCongestion(f);
+    const status = getStatusInfo(level);
+    const percent = Math.round(level * 100);
+
+    const item = document.createElement('div');
+    item.className = 'facility-item';
+    item.innerHTML = `
+      <div class="status-dot" style="background:${status.color}"></div>
+      <div class="facility-info">
+        <div class="facility-name">${f.name}</div>
+        <div class="facility-sub">${f.sub}</div>
+      </div>
+      <span class="status-badge ${status.class}">${status.label}</span>
+    `;
+
+    // タップで地図移動
+    item.addEventListener('click', ()=>{
+      map.setView([f.lat, f.lng], 15, {animate:true});
+      markers[f.id] && markers[f.id].openPopup();
+      setSheetHeight('small');
+    });
+
+    list.appendChild(item);
+  });
+}
+
+// 時刻表示更新
+function updateTime(){
+  const now = new Date();
+  const weekdays = ['日','月','火','水','木','金','土'];
+  const timeStr = `${now.getMonth()+1}月${now.getDate()}日（${weekdays[now.getDay()]}）${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 更新`;
+  document.getElementById('current-time').textContent = timeStr;
+}
+
+// ボトムシート高さ制御
+const HEIGHTS = {small:'25vh', mid:'42vh', large:'70vh'};
+let currentSize = 'mid';
+
+function setSheetHeight(size){
+  currentSize = size;
+  document.getElementById('sheet').style.height = HEIGHTS[size];
+}
+
+// ドラッグ操作
+(function setupDrag(){
+  const sheet = document.getElementById('sheet');
+  const handle = document.getElementById('handle');
+  let startY = 0, startH = 0, dragging = false;
+
+  function onStart(e){
+    dragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    startH = sheet.offsetHeight;
+    sheet.style.transition = 'none';
+  }
+
+  function onMove(e){
+    if(!dragging) return;
+    e.preventDefault();
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const diff = startY - y;
+    const newH = Math.max(80, Math.min(window.innerHeight*0.8, startH + diff));
+    sheet.style.height = newH + 'px';
+  }
+
+  function onEnd(){
+    if(!dragging) return;
+    dragging = false;
+    sheet.style.transition = 'height 0.3s cubic-bezier(0.25,0.8,0.25,1)';
+    
+    const h = sheet.offsetHeight;
+    const wh = window.innerHeight;
+    if(h < wh*0.32)      setSheetHeight('small');
+    else if(h < wh*0.55) setSheetHeight('mid');
+    else                 setSheetHeight('large');
+  }
+
+  handle.addEventListener('touchstart', onStart, {passive:true});
+  handle.addEventListener('touchmove', onMove, {passive:false});
+  handle.addEventListener('touchend', onEnd);
+  handle.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+})();
+
+// 全体更新
+function updateAll(){
+  updateTime();
+  updateHeatmap();
+  updateMarkers();
+  updateList();
+}
+
+// 初期化
+initMap();
+updateAll();
+
+// 5分ごと自動更新
+setInterval(updateAll, 5*60*1000);
+</script>
+</body>
+</html>
