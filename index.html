@@ -46,7 +46,6 @@ body{
   height:52vh;padding-bottom:env(safe-area-inset-bottom,20px);
 }
 
-/* ハンドル：ドラッグ専用エリア */
 .handle-area{
   width:100%;height:28px;
   display:flex;align-items:center;justify-content:center;
@@ -60,7 +59,6 @@ body{
 .sheet-header{padding:4px 20px 6px;display:flex;justify-content:space-between;align-items:center;}
 .sheet-title{font-size:22px;font-weight:700;color:#1c1c1e;}
 
-/* みーちゃん表示（タップ専用エリア） */
 .person-item{
   display:flex;align-items:center;padding:16px 20px;
   border-bottom:0.5px solid #e5e5ea;min-height:68px;
@@ -176,7 +174,6 @@ body{
 <div id="map"></div>
 
 <div class="bottom-sheet" id="sheet">
-  <!-- ハンドルエリア：ドラッグ専用 -->
   <div class="handle-area" id="handle-area">
     <div class="handle"></div>
   </div>
@@ -185,7 +182,6 @@ body{
     <div class="sheet-title">人を探す</div>
   </div>
 
-  <!-- みーちゃん：タップ専用エリア -->
   <div class="person-item" id="person-btn">
     <div class="person-icon-wrapper">
       <div class="person-silhouette">
@@ -222,16 +218,18 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-// 茅ヶ崎駅正確座標（みーちゃんの位置も常にここ）
+// 茅ヶ崎駅正確座標
 const STATION_LAT = 35.33031814797218;
 const STATION_LNG = 139.40650049269422;
 
-// 施設データ（19施設・BLiX座標修正済み）
+// 施設データ（20施設：魚卓修正・サンドーレ追加）
 const FACILITIES = [
+  // 交通拠点
   {id:'chigasaki-sta',      name:'茅ヶ崎駅',                 sub:'JR東海道線',        lat:STATION_LAT,        lng:STATION_LNG,        weight:2.0, type:'station'},
   {id:'kita-chigasaki-sta', name:'相模線北茅ヶ崎駅',          sub:'JR相模線',          lat:35.339096243815575, lng:139.40733108113682, weight:1.3, type:'station'},
   {id:'kagawa-sta',         name:'相模線香川駅',             sub:'JR相模線',          lat:35.35648121501938,  lng:139.39962918312352, weight:1.2, type:'station'},
   
+  // 商業施設
   {id:'lusca',              name:'ラスカ茅ヶ崎',             sub:'茅ヶ崎駅直結',      lat:35.3310,            lng:139.4072,           weight:1.6, type:'shopping'},
   {id:'terrace',            name:'テラスモール湘南',          sub:'辻堂駅北口',        lat:35.3379,            lng:139.4479,           weight:2.0, type:'shopping'},
   {id:'aeon',               name:'イオン 茅ヶ崎中央店',      sub:'茅ヶ崎市茅ヶ崎',    lat:35.336005132707825, lng:139.40220526992636, weight:1.5, type:'shopping'},
@@ -240,15 +238,21 @@ const FACILITIES = [
   {id:'tamaya-minami',      name:'たまや 茅ヶ崎駅南店',      sub:'茅ヶ崎市共恵',      lat:35.330796141509886, lng:139.40863479075924, weight:1.2, type:'shopping'},
   {id:'maxvalu-wakamatsu',  name:'マックスバリュEX茅ヶ崎若松店', sub:'茅ヶ崎市若松町', lat:35.33257606973468,  lng:139.41610911529713, weight:1.3, type:'shopping'},
   
+  // 小売・専門店
   {id:'cainz',              name:'カインズ茅ヶ崎店',         sub:'茅ヶ崎市矢畑',      lat:35.3401,            lng:139.4312,           weight:1.1, type:'retail'},
   {id:'homes',              name:'ホームズ茅ヶ崎店',         sub:'茅ヶ崎市本村',      lat:35.33783549684132,  lng:139.40903777991124, weight:1.4, type:'retail'},
   {id:'workman-plus',       name:'ワークマンプラス 茅ヶ崎本村店', sub:'茅ヶ崎市本村',  lat:35.33953785798652,  lng:139.41108756627455, weight:1.1, type:'retail'},
-  {id:'uotaku',             name:'魚卓',                    sub:'茅ヶ崎市元町',      lat:35.3301,            lng:139.4055,           weight:0.9, type:'retail'},
+  // 魚卓本店：座標修正
+  {id:'uotaku',             name:'魚卓本店',                sub:'茅ヶ崎市共恵',      lat:35.32812487713309,  lng:139.40829065858483, weight:0.9, type:'retail'},
+  // サンドーレ：新規追加
+  {id:'sandore',            name:'サンドーレ 茅ヶ崎店',      sub:'茅ヶ崎市共恵',      lat:35.32537394185126,  lng:139.40848209995002, weight:1.0, type:'retail'},
   
+  // 公共・業務施設
   {id:'city-hall',          name:'茅ヶ崎市役所',             sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333,          lng:139.4044,           weight:0.8, type:'office'},
   {id:'tokushukai',         name:'茅ヶ崎徳洲会病院',         sub:'茅ヶ崎市幸町',      lat:35.3308,            lng:139.4086,           weight:1.2, type:'office'},
   {id:'azbil-shonan',       name:'アズビル湘南工場',         sub:'寒川町大曲',        lat:35.35466832869592,  lng:139.3939267416248,  weight:1.6, type:'office'},
   
+  // アウトドア・レジャー
   {id:'beach',              name:'サザンビーチちがさき',      sub:'茅ヶ崎海岸',        lat:35.3156,            lng:139.4057,           weight:1.2, type:'outdoor'},
   {id:'chigasaki-park-bb',  name:'茅ヶ崎公園野球場',         sub:'茅ヶ崎公園内',      lat:35.31997826740944,  lng:139.4048266578595,  weight:1.0, type:'outdoor'}
 ];
@@ -300,14 +304,21 @@ function getStatusInfo(level){
                return {label:'非常に混雑',  cls:'status-full',   color:'#ff3b30'};
 }
 
+// ★ボトムシートを考慮した画面中央表示
+function setViewWithOffset(lat, lng, zoom) {
+  // ボトムシート(small=25vh)考慮：画面高さの12.5%下方オフセット
+  const yOffset = window.innerHeight * 0.125;
+  const targetPoint = map.project([lat, lng], zoom);
+  targetPoint.y -= yOffset;
+  const centerLatLng = map.unproject(targetPoint, zoom);
+  map.setView(centerLatLng, zoom, {animate: true, duration: 0.8});
+}
+
 function initMap(){
-  // 初期表示：茅ヶ崎駅（=みーちゃん位置）
-  map = L.map('map',{zoomControl:false,attributionControl:false})
-          .setView([STATION_LAT, STATION_LNG], 17);
+  map = L.map('map',{zoomControl:false,attributionControl:false});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
   map.on('click', ()=>setSheetHeight('small'));
 
-  // みーちゃんピン（常に駅上に配置）
   const personIcon = L.divIcon({
     className:'',
     html:`
@@ -343,14 +354,14 @@ function initMap(){
         <span style="color:#8e8e93;font-size:12px;">神奈川県茅ヶ崎市・たった今</span>
       </div>
     `);
+
+  // 初期表示もオフセット適用
+  setViewWithOffset(STATION_LAT, STATION_LNG, 17);
 }
 
-// ★茅ヶ崎駅戻り機能（ピン位置も駅にリセット）
 function goToStation(){
-  // ピン位置を駅に移動
   personMarker.setLatLng([STATION_LAT, STATION_LNG]);
-  // 地図表示も駅に移動
-  map.setView([STATION_LAT, STATION_LNG], 17, {animate:true, duration:0.8});
+  setViewWithOffset(STATION_LAT, STATION_LNG, 17);
   setSheetHeight('small');
 }
 
@@ -391,7 +402,10 @@ function updateMarkers(){
         <div class="popup-sub">${f.sub}</div>
         <div class="popup-status" style="color:${s.color}">${s.label}（${pct}%）</div>
       `);
-    m.on('click',()=>setSheetHeight('small'));
+    m.on('click',()=>{
+      setViewWithOffset(f.lat, f.lng, 17);
+      setSheetHeight('small');
+    });
     markers[f.id]=m;
   });
 }
@@ -415,7 +429,7 @@ function updateList(){
       <span class="status-badge ${s.cls}">${s.label}</span>
     `;
     item.addEventListener('click',()=>{
-      map.setView([f.lat,f.lng],17,{animate:true});
+      setViewWithOffset(f.lat, f.lng, 17);
       markers[f.id]&&markers[f.id].openPopup();
       setSheetHeight('small');
     });
@@ -436,13 +450,11 @@ function updateTime(){
 const HEIGHTS={small:'25vh',mid:'52vh',large:'78vh'};
 function setSheetHeight(s){document.getElementById('sheet').style.height=HEIGHTS[s];}
 
-// ドラッグとタップの完全分離
 (function setupInteraction(){
   const sheet = document.getElementById('sheet');
   const handleArea = document.getElementById('handle-area');
   const personBtn = document.getElementById('person-btn');
 
-  // ---- ハンドルエリア：ドラッグ専用 ----
   let sy=0, sh=0, drag=false;
 
   function startDrag(e){
@@ -469,7 +481,6 @@ function setSheetHeight(s){document.getElementById('sheet').style.height=HEIGHTS
     else setSheetHeight('large');
   }
 
-  // ハンドルエリアのみドラッグ対象
   handleArea.addEventListener('touchstart', startDrag, {passive:true});
   document.addEventListener('touchmove', moveDrag, {passive:false});
   document.addEventListener('touchend', endDrag);
@@ -477,29 +488,21 @@ function setSheetHeight(s){document.getElementById('sheet').style.height=HEIGHTS
   document.addEventListener('mousemove', moveDrag);
   document.addEventListener('mouseup', endDrag);
 
-  // ---- みーちゃん：タップ専用 ----
   let touchStartY = 0;
-
   personBtn.addEventListener('touchstart', function(e){
     touchStartY = e.touches[0].clientY;
   }, {passive:true});
 
   personBtn.addEventListener('touchend', function(e){
-    const endY = e.changedTouches[0].clientY;
-    const diff = Math.abs(endY - touchStartY);
-    // 10px以内の移動＝タップとみなす
+    const diff = Math.abs(e.changedTouches[0].clientY - touchStartY);
     if(diff < 10){
       e.preventDefault();
       goToStation();
     }
   }, {passive:false});
 
-  // PCクリック対応
   personBtn.addEventListener('click', goToStation);
-
-  // 地図上のピンからも戻り機能
   personMarker && personMarker.on('click', goToStation);
-
 })();
 
 function updateAll(){updateTime();updateHeatmap();updateMarkers();updateList();}
