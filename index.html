@@ -13,273 +13,129 @@
 
 body{
   font-family:'Meiryo','Yu Gothic','Hiragino Sans',sans-serif;
-  background:#f2f2f7;
-  overflow:hidden;
-  height:100vh;
-  height:100dvh;
+  background:#f2f2f7;overflow:hidden;height:100vh;height:100dvh;
 }
 
-#map{
-  position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
-  z-index:1;
-}
+#map{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
 
 .header{
-  position:absolute;
-  top:0;left:0;width:100%;
+  position:absolute;top:0;left:0;width:100%;
   background:rgba(255,255,255,0.94);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   padding:env(safe-area-inset-top,44px) 20px 12px;
-  z-index:1000;
-  border-bottom:0.5px solid rgba(0,0,0,0.1);
+  z-index:1000;border-bottom:0.5px solid rgba(0,0,0,0.1);
 }
 
-.header-content{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-}
-
-.header h1{
-  font-size:17px;
-  font-weight:700;
-  color:#1c1c1e;
-  letter-spacing:-0.3px;
-}
-
-.header .time{
-  font-size:12px;
-  color:#8e8e93;
-  margin-top:2px;
-}
+.header-content{display:flex;justify-content:space-between;align-items:flex-end;}
+.header h1{font-size:17px;font-weight:700;color:#1c1c1e;letter-spacing:-0.3px;}
+.header .time{font-size:12px;color:#8e8e93;margin-top:2px;}
 
 .refresh-btn{
-  width:36px;height:36px;
-  border-radius:50%;
-  background:#007aff;
-  border:none;
-  color:white;
-  font-size:18px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,122,255,0.3);
+  width:36px;height:36px;border-radius:50%;background:#007aff;border:none;
+  color:white;font-size:18px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 2px 8px rgba(0,122,255,0.3);
 }
 
-/* ボトムシート */
 .bottom-sheet{
-  position:absolute;
-  bottom:0;left:0;width:100%;
+  position:absolute;bottom:0;left:0;width:100%;
   background:rgba(255,255,255,0.96);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
-  border-radius:16px 16px 0 0;
-  box-shadow:0 -2px 20px rgba(0,0,0,0.12);
-  z-index:1000;
-  display:flex;flex-direction:column;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-radius:16px 16px 0 0;box-shadow:0 -2px 20px rgba(0,0,0,0.12);
+  z-index:1000;display:flex;flex-direction:column;
   transition:height 0.3s cubic-bezier(0.25,0.8,0.25,1);
-  height:52vh;
-  padding-bottom:env(safe-area-inset-bottom,20px);
+  height:52vh;padding-bottom:env(safe-area-inset-bottom,20px);
 }
 
 .handle{
-  width:36px;height:4px;
-  background:#d1d1d6;
-  border-radius:2px;
-  margin:8px auto 0;
-  cursor:grab;
-  padding:12px 40px;
-  margin-top:-8px;
+  width:36px;height:4px;background:#d1d1d6;border-radius:2px;
+  margin:8px auto 0;cursor:grab;padding:12px 40px;margin-top:-8px;
 }
 
-.sheet-header{
-  padding:8px 20px 6px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+.sheet-header{padding:8px 20px 6px;display:flex;justify-content:space-between;align-items:center;}
+.sheet-title{font-size:22px;font-weight:700;color:#1c1c1e;}
 
-.sheet-title{
-  font-size:22px;
-  font-weight:700;
-  color:#1c1c1e;
-}
-
-/* みーちゃん表示（Apple「探す」完全準拠） */
+/* みーちゃん表示 */
 .person-item{
-  display:flex;
-  align-items:center;
-  padding:16px 20px;
-  border-bottom:0.5px solid #e5e5ea;
-  cursor:pointer;
-  min-height:68px;
+  display:flex;align-items:center;padding:16px 20px;
+  border-bottom:0.5px solid #e5e5ea;cursor:pointer;min-height:68px;
 }
-
 .person-item:active{background:rgba(0,0,0,0.05);}
 
 .person-icon-wrapper{
-  position:relative;
-  width:48px;height:48px;
-  border-radius:50%;
+  position:relative;width:48px;height:48px;border-radius:50%;
   background:linear-gradient(160deg,#b8d4ff 0%,#5b8dee 50%,#3a6fd8 100%);
   display:flex;justify-content:center;align-items:center;
-  flex-shrink:0;
-  margin-right:14px;
-  box-shadow:0 3px 10px rgba(58,111,216,0.4);
-  overflow:hidden;
+  flex-shrink:0;margin-right:14px;
+  box-shadow:0 3px 10px rgba(58,111,216,0.4);overflow:hidden;
 }
 
 .person-silhouette{
-  position:absolute;
-  bottom:-2px;
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  position:absolute;bottom:-2px;width:100%;
+  display:flex;flex-direction:column;align-items:center;
 }
 
 .person-head{
-  width:17px;height:17px;
-  background:rgba(255,255,255,0.92);
-  border-radius:50%;
-  margin-bottom:1px;
+  width:17px;height:17px;background:rgba(255,255,255,0.92);
+  border-radius:50%;margin-bottom:1px;
 }
 
 .person-body{
-  width:32px;height:20px;
-  background:rgba(255,255,255,0.92);
+  width:32px;height:20px;background:rgba(255,255,255,0.92);
   border-radius:16px 16px 0 0;
 }
 
 .person-star{
-  position:absolute;
-  bottom:-1px;right:-1px;
-  width:20px;height:20px;
-  background:#ffcc00;
-  border-radius:50%;
-  border:2.5px solid #fff;
+  position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;
+  background:#ffcc00;border-radius:50%;border:2.5px solid #fff;
   display:flex;justify-content:center;align-items:center;
-  box-shadow:0 1px 4px rgba(0,0,0,0.25);
-  z-index:2;
+  box-shadow:0 1px 4px rgba(0,0,0,0.25);z-index:2;
 }
 
-.star-shape{
-  font-size:9px;
-  color:#fff;
-  line-height:1;
-  margin-top:-1px;
-}
-
+.star-shape{font-size:9px;color:#fff;line-height:1;margin-top:-1px;}
 .person-info{flex:1;}
-
-.person-name{
-  font-size:17px;
-  font-weight:600;
-  color:#1c1c1e;
-  margin-bottom:3px;
-}
-
-.person-location{
-  font-size:13px;
-  color:#8e8e93;
-  line-height:1.4;
-}
-
-.person-distance{
-  font-size:15px;
-  color:#8e8e93;
-  font-weight:400;
-}
+.person-name{font-size:17px;font-weight:600;color:#1c1c1e;margin-bottom:3px;}
+.person-location{font-size:13px;color:#8e8e93;line-height:1.4;}
+.person-distance{font-size:15px;color:#8e8e93;font-weight:400;}
 
 /* 凡例 */
 .legend{
-  display:flex;
-  gap:12px;
-  padding:10px 20px 6px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  flex-shrink:0;
+  display:flex;gap:12px;padding:10px 20px 6px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;
 }
-
 .legend::-webkit-scrollbar{display:none;}
-
 .legend-item{
-  display:flex;align-items:center;gap:5px;
-  white-space:nowrap;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
   font-size:11px;color:#48484a;font-weight:500;
 }
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.divider{height:0.5px;background:#e5e5ea;margin:0 20px 4px;flex-shrink:0;}
 
-.legend-dot{
-  width:9px;height:9px;
-  border-radius:50%;
-  flex-shrink:0;
-}
-
-.divider{
-  height:0.5px;
-  background:#e5e5ea;
-  margin:0 20px 4px;
-  flex-shrink:0;
-}
-
-/* 施設リスト（タップしやすさ最優先） */
-.facility-scroll{
-  flex:1;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  padding:0 16px;
-}
-
+/* 施設リスト */
+.facility-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px;}
 .facility-scroll::-webkit-scrollbar{display:none;}
 
 .facility-item{
-  display:flex;align-items:center;
-  min-height:60px;
-  padding:14px 8px;
-  border-bottom:0.5px solid #f0f0f5;
-  gap:14px;
-  cursor:pointer;
-  border-radius:10px;
+  display:flex;align-items:center;min-height:60px;padding:14px 8px;
+  border-bottom:0.5px solid #f0f0f5;gap:14px;cursor:pointer;border-radius:10px;
   transition:background 0.1s;
 }
-
 .facility-item:last-child{border-bottom:none;}
-
-.facility-item:active{
-  background:rgba(0,122,255,0.06);
-}
+.facility-item:active{background:rgba(0,122,255,0.06);}
 
 .status-dot-wrap{
-  width:36px;height:36px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
-
-.status-dot{
-  width:14px;height:14px;
-  border-radius:50%;
-  box-shadow:0 0 6px rgba(0,0,0,0.2);
-}
-
+.status-dot{width:14px;height:14px;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.2);}
 .facility-info{flex:1;min-width:0;}
-
 .facility-name{
   font-size:16px;font-weight:600;color:#1c1c1e;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-
-.facility-sub{
-  font-size:13px;color:#8e8e93;margin-top:2px;
-}
-
+.facility-sub{font-size:13px;color:#8e8e93;margin-top:2px;}
 .status-badge{
-  font-size:13px;font-weight:600;
-  padding:6px 12px;border-radius:12px;
-  min-width:76px;text-align:center;
-  flex-shrink:0;
+  font-size:13px;font-weight:600;padding:6px 12px;border-radius:12px;
+  min-width:76px;text-align:center;flex-shrink:0;
 }
 
 .status-empty  {background:#e8f2ff;color:#007aff;}
@@ -288,31 +144,16 @@ body{
 .status-busy   {background:#fff5e8;color:#ff9500;}
 .status-full   {background:#fff0f0;color:#ff3b30;}
 
-/* ポップアップ */
 .leaflet-popup-content-wrapper{
   border-radius:14px !important;
   font-family:'Meiryo','Yu Gothic',sans-serif !important;
   box-shadow:0 6px 20px rgba(0,0,0,0.18) !important;
   min-width:180px !important;
 }
-
-.leaflet-popup-content{
-  margin:14px 16px !important;
-  font-size:14px !important;
-  line-height:1.6 !important;
-}
-
-.popup-name{
-  font-weight:700;font-size:16px;color:#1c1c1e;margin-bottom:4px;
-}
-
-.popup-sub{
-  color:#8e8e93;font-size:13px;margin-bottom:6px;
-}
-
-.popup-status{
-  font-size:14px;font-weight:600;
-}
+.leaflet-popup-content{margin:14px 16px !important;font-size:14px !important;line-height:1.6 !important;}
+.popup-name{font-weight:700;font-size:16px;color:#1c1c1e;margin-bottom:4px;}
+.popup-sub{color:#8e8e93;font-size:13px;margin-bottom:6px;}
+.popup-status{font-size:14px;font-weight:600;}
 </style>
 </head>
 <body>
@@ -331,13 +172,13 @@ body{
 
 <div class="bottom-sheet" id="sheet">
   <div class="handle" id="handle"></div>
-
+  
   <div class="sheet-header">
     <div class="sheet-title">人を探す</div>
   </div>
 
-  <!-- みーちゃん：タップで茅ヶ崎駅に戻る -->
-  <div class="person-item" onclick="focusPerson()">
+  <!-- みーちゃん：JavaScript方式でイベント競合を回避 -->
+  <div class="person-item" id="person-btn">
     <div class="person-icon-wrapper">
       <div class="person-silhouette">
         <div class="person-head"></div>
@@ -373,37 +214,45 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-// 施設データ（18施設対応）
-const FACILITIES = [
-  // 既存11施設
-  {id:'chigasaki-sta',      name:'茅ヶ崎駅',                 sub:'JR東海道線',            lat:35.3304, lng:139.4064, weight:2.0, type:'station'},
-  {id:'lusca',              name:'ラスカ茅ヶ崎',              sub:'茅ヶ崎駅直結',          lat:35.3310, lng:139.4072, weight:1.6, type:'shopping'},
-  {id:'terrace',            name:'テラスモール湘南',           sub:'辻堂駅北口',            lat:35.3379, lng:139.4479, weight:2.0, type:'shopping'},
-  {id:'aeon',               name:'イオン茅ヶ崎中央店',        sub:'茅ヶ崎市茶屋町',        lat:35.3318, lng:139.4098, weight:1.5, type:'shopping'},
-  {id:'cainz',              name:'カインズ茅ヶ崎店',          sub:'茅ヶ崎市矢畑',          lat:35.3401, lng:139.4312, weight:1.1, type:'retail'},
-  {id:'city-hall',          name:'茅ヶ崎市役所',              sub:'茅ヶ崎市茅ヶ崎一丁目',  lat:35.3333, lng:139.4044, weight:0.8, type:'office'},
-  {id:'beach',              name:'サザンビーチちがさき',       sub:'茅ヶ崎海岸',            lat:35.3156, lng:139.4057, weight:1.2, type:'outdoor'},
-  {id:'blix',               name:'BLiX茅ヶ崎',                sub:'茅ヶ崎市新栄町',        lat:35.3298, lng:139.4051, weight:1.3, type:'shopping'},
-  {id:'hiratsuka-lusca',    name:'平塚ラスカ',                sub:'JR平塚駅直結',          lat:35.3228, lng:139.3497, weight:1.7, type:'shopping'},
-  {id:'tokushukai',         name:'茅ヶ崎徳洲会病院',          sub:'茅ヶ崎市幸町',          lat:35.3308, lng:139.4086, weight:1.2, type:'office'},
-  {id:'uotaku',             name:'魚卓',                      sub:'茅ヶ崎市元町',          lat:35.3301, lng:139.4055, weight:0.9, type:'retail'},
-  {id:'maxvalu-wakamatsu', name:'マックスバリュエクスプレス茅ヶ崎若松店', sub:'茅ヶ崎市若松町', lat:35.33257606973468, lng:139.41610911529713, weight:1.3, type:'shopping'},
-  // 新規追加7施設
-  {id:'homes',              name:'ホームズ茅ヶ崎店',           sub:'茅ヶ崎市本村',          lat:35.33783549684132, lng:139.40903777991124, weight:1.4, type:'retail'},
-  {id:'tamaya-minami',      name:'たまや 茅ヶ崎駅南店',       sub:'茅ヶ崎市共恵',          lat:35.330796141509886, lng:139.40863479075924, weight:1.2, type:'shopping'},
-  {id:'azbil-shonan',       name:'アズビル湘南工場',           sub:'寒川町大曲',            lat:35.35466832869592, lng:139.3939267416248, weight:1.6, type:'office'},
-  {id:'kagawa-sta',         name:'相模線香川駅',              sub:'JR相模線',              lat:35.35648121501938, lng:139.39962918312352, weight:1.2, type:'station'},
-  {id:'kita-chigasaki-sta', name:'相模線北茅ヶ崎駅',           sub:'JR相模線',              lat:35.339096243815575, lng:139.40733108113682, weight:1.3, type:'station'},
-  {id:'workman-plus',       name:'ワークマンプラス 茅ヶ崎本村店',sub:'茅ヶ崎市本村',        lat:35.33953785798652, lng:139.41108756627455, weight:1.1, type:'retail'},
-  {id:'chigasaki-park-bb',  name:'茅ヶ崎公園野球場',           sub:'茅ヶ崎公園内',          lat:35.31997826740944, lng:139.4048266578595, weight:1.0, type:'outdoor'}
-];
+// 茅ヶ崎駅正確座標（戻り先）
+const CHIGASAKI_STATION_LAT = 35.33031814797218;
+const CHIGASAKI_STATION_LNG = 139.40650049269422;
 
-// みーちゃん位置（地図表示用）
+// みーちゃん表示位置
 const PERSON_LAT = 35.3325;
 const PERSON_LNG = 139.4060;
 
-// 茅ヶ崎駅座標（戻り先）
-const CHIGASAKI_STATION = {lat:35.3304, lng:139.4064};
+// 施設データ（19施設・正確座標反映）
+const FACILITIES = [
+  // 交通拠点
+  {id:'chigasaki-sta',      name:'茅ヶ崎駅',                 sub:'JR東海道線',        lat:35.33031814797218,  lng:139.40650049269422, weight:2.0, type:'station'},
+  {id:'kita-chigasaki-sta', name:'相模線北茅ヶ崎駅',          sub:'JR相模線',          lat:35.339096243815575, lng:139.40733108113682, weight:1.3, type:'station'},
+  {id:'kagawa-sta',         name:'相模線香川駅',             sub:'JR相模線',          lat:35.35648121501938,  lng:139.39962918312352, weight:1.2, type:'station'},
+  
+  // 商業施設
+  {id:'lusca',              name:'ラスカ茅ヶ崎',             sub:'茅ヶ崎駅直結',      lat:35.3310,            lng:139.4072,           weight:1.6, type:'shopping'},
+  {id:'terrace',            name:'テラスモール湘南',          sub:'辻堂駅北口',        lat:35.3379,            lng:139.4479,           weight:2.0, type:'shopping'},
+  {id:'aeon',               name:'イオン 茅ヶ崎中央店',      sub:'茅ヶ崎市茅ヶ崎',    lat:35.336005132707825, lng:139.40220526992636, weight:1.5, type:'shopping'},
+  {id:'blix',               name:'BLiX茅ヶ崎',              sub:'茅ヶ崎市新栄町',    lat:35.3298,            lng:139.4051,           weight:1.3, type:'shopping'},
+  {id:'hiratsuka-lusca',    name:'平塚ラスカ',              sub:'JR平塚駅直結',      lat:35.3228,            lng:139.3497,           weight:1.7, type:'shopping'},
+  {id:'tamaya-minami',      name:'たまや 茅ヶ崎駅南店',      sub:'茅ヶ崎市共恵',      lat:35.330796141509886, lng:139.40863479075924, weight:1.2, type:'shopping'},
+  {id:'maxvalu-wakamatsu',  name:'マックスバリュEX茅ヶ崎若松店', sub:'茅ヶ崎市若松町', lat:35.33257606973468,  lng:139.41610911529713, weight:1.3, type:'shopping'},
+  
+  // 小売・専門店
+  {id:'cainz',              name:'カインズ茅ヶ崎店',         sub:'茅ヶ崎市矢畑',      lat:35.3401,            lng:139.4312,           weight:1.1, type:'retail'},
+  {id:'homes',              name:'ホームズ茅ヶ崎店',         sub:'茅ヶ崎市本村',      lat:35.33783549684132,  lng:139.40903777991124, weight:1.4, type:'retail'},
+  {id:'workman-plus',       name:'ワークマンプラス 茅ヶ崎本村店', sub:'茅ヶ崎市本村',  lat:35.33953785798652,  lng:139.41108756627455, weight:1.1, type:'retail'},
+  {id:'uotaku',             name:'魚卓',                    sub:'茅ヶ崎市元町',      lat:35.3301,            lng:139.4055,           weight:0.9, type:'retail'},
+  
+  // 公共・業務施設
+  {id:'city-hall',          name:'茅ヶ崎市役所',             sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333,          lng:139.4044,           weight:0.8, type:'office'},
+  {id:'tokushukai',         name:'茅ヶ崎徳洲会病院',         sub:'茅ヶ崎市幸町',      lat:35.3308,            lng:139.4086,           weight:1.2, type:'office'},
+  {id:'azbil-shonan',       name:'アズビル湘南工場',         sub:'寒川町大曲',        lat:35.35466832869592,  lng:139.3939267416248,  weight:1.6, type:'office'},
+  
+  // アウトドア・レジャー
+  {id:'beach',              name:'サザンビーチちがさき',      sub:'茅ヶ崎海岸',        lat:35.3156,            lng:139.4057,           weight:1.2, type:'outdoor'},
+  {id:'chigasaki-park-bb',  name:'茅ヶ崎公園野球場',         sub:'茅ヶ崎公園内',      lat:35.31997826740944,  lng:139.4048266578595,  weight:1.0, type:'outdoor'}
+];
 
 const PATTERNS = {
   station:{
@@ -453,56 +302,56 @@ function getStatusInfo(level){
 }
 
 function initMap(){
-  // 初期表示：茅ヶ崎駅・高解像度
+  // 初期表示：茅ヶ崎駅正確座標・zoom17
   map = L.map('map',{zoomControl:false,attributionControl:false})
-          .setView([CHIGASAKI_STATION.lat, CHIGASAKI_STATION.lng], 17);
-
+          .setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
   map.on('click', ()=>setSheetHeight('small'));
 
-  // みーちゃんピン（Apple「探す」完全準拠）
+  // みーちゃんピン
   const personIcon = L.divIcon({
     className:'',
     html:`
-      <div style="
-        position:relative;
-        width:44px;height:44px;
-        border-radius:50%;
-        background:linear-gradient(160deg,#b8d4ff 0%,#5b8dee 50%,#3a6fd8 100%);
-        border:3px solid #fff;
-        box-shadow:0 4px 14px rgba(58,111,216,0.5);
-        overflow:hidden;
-        display:flex;justify-content:center;align-items:flex-end;
-      ">
-        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:-2px;">
-          <div style="width:16px;height:16px;background:rgba(255,255,255,0.92);border-radius:50%;margin-bottom:1px;"></div>
-          <div style="width:30px;height:18px;background:rgba(255,255,255,0.92);border-radius:15px 15px 0 0;"></div>
+      <div style="position:relative;width:44px;height:44px;">
+        <div style="
+          width:44px;height:44px;border-radius:50%;
+          background:linear-gradient(160deg,#b8d4ff 0%,#5b8dee 50%,#3a6fd8 100%);
+          border:3px solid #fff;
+          box-shadow:0 4px 14px rgba(58,111,216,0.5);
+          overflow:hidden;display:flex;justify-content:center;align-items:flex-end;
+        ">
+          <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:-2px;">
+            <div style="width:16px;height:16px;background:rgba(255,255,255,0.92);border-radius:50%;margin-bottom:1px;"></div>
+            <div style="width:30px;height:18px;background:rgba(255,255,255,0.92);border-radius:15px 15px 0 0;"></div>
+          </div>
         </div>
+        <div style="
+          position:absolute;bottom:-1px;right:-1px;width:20px;height:20px;
+          background:#ffcc00;border-radius:50%;border:2.5px solid #fff;
+          display:flex;justify-content:center;align-items:center;
+          box-shadow:0 1px 4px rgba(0,0,0,0.25);font-size:9px;color:#fff;
+        ">★</div>
       </div>
-      <div style="
-        position:absolute;
-        bottom:-2px;right:-2px;
-        width:20px;height:20px;
-        background:#ffcc00;
-        border-radius:50%;
-        border:2.5px solid #fff;
-        display:flex;justify-content:center;align-items:center;
-        box-shadow:0 1px 4px rgba(0,0,0,0.25);
-        font-size:9px;color:#fff;line-height:1;
-      ">★</div>
     `,
-    iconSize:[44,44],
-    iconAnchor:[22,22]
+    iconSize:[44,44],iconAnchor:[22,22]
   });
 
-  personMarker = L.marker([PERSON_LAT, PERSON_LNG],{icon:personIcon, zIndexOffset:1000})
+  personMarker = L.marker([PERSON_LAT, PERSON_LNG],{icon:personIcon,zIndexOffset:1000})
     .addTo(map)
-    .bindPopup('<div style="font-family:Meiryo,sans-serif;"><b style="font-size:15px;">みーちゃん</b><br><span style="color:#8e8e93;font-size:12px;">神奈川県茅ヶ崎市・たった今</span></div>');
+    .bindPopup(`
+      <div style="font-family:'Meiryo',sans-serif;">
+        <b style="font-size:15px;color:#1c1c1e;">みーちゃん</b><br>
+        <span style="color:#8e8e93;font-size:12px;">神奈川県茅ヶ崎市・たった今</span>
+      </div>
+    `);
+
+  // みーちゃんボタン：addEventListener方式でイベント競合回避
+  document.getElementById('person-btn').addEventListener('click', focusPerson);
 }
 
-// みーちゃんタップ → 茅ヶ崎駅戻り
+// みーちゃんタップ → 茅ヶ崎駅正確座標へ戻る
 function focusPerson(){
-  map.setView([CHIGASAKI_STATION.lat, CHIGASAKI_STATION.lng], 17, {animate:true});
+  map.setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17, {animate:true, duration:0.8});
   setSheetHeight('small');
 }
 
@@ -532,22 +381,12 @@ function updateMarkers(){
     const level=getCongestion(f);
     const s=getStatusInfo(level);
     const pct=Math.round(level*100);
-
     const icon=L.divIcon({
       className:'',
-      html:`<div style="
-        width:28px;height:28px;
-        border-radius:50%;
-        background:${s.color};
-        border:3px solid #fff;
-        box-shadow:0 2px 8px rgba(0,0,0,0.25);
-      "></div>`,
-      iconSize:[28,28],
-      iconAnchor:[14,14]
+      html:`<div style="width:28px;height:28px;border-radius:50%;background:${s.color};border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25);"></div>`,
+      iconSize:[28,28],iconAnchor:[14,14]
     });
-
-    const m=L.marker([f.lat,f.lng],{icon})
-      .addTo(map)
+    const m=L.marker([f.lat,f.lng],{icon}).addTo(map)
       .bindPopup(`
         <div class="popup-name">${f.name}</div>
         <div class="popup-sub">${f.sub}</div>
