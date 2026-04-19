@@ -52,9 +52,7 @@ body{
   cursor:grab;flex-shrink:0;
 }
 
-.handle{
-  width:36px;height:4px;background:#d1d1d6;border-radius:2px;
-}
+.handle{width:36px;height:4px;background:#d1d1d6;border-radius:2px;}
 
 .sheet-header{padding:4px 20px 6px;display:flex;justify-content:space-between;align-items:center;}
 .sheet-title{font-size:22px;font-weight:700;color:#1c1c1e;}
@@ -218,43 +216,40 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-// 茅ヶ崎駅正確座標
 const STATION_LAT = 35.33031814797218;
 const STATION_LNG = 139.40650049269422;
 
-// 施設データ（20施設：魚卓修正・サンドーレ追加）
+// 施設データ（20施設：座標更新済み）
 const FACILITIES = [
   // 交通拠点
-  {id:'chigasaki-sta',      name:'茅ヶ崎駅',                 sub:'JR東海道線',        lat:STATION_LAT,        lng:STATION_LNG,        weight:2.0, type:'station'},
-  {id:'kita-chigasaki-sta', name:'相模線北茅ヶ崎駅',          sub:'JR相模線',          lat:35.339096243815575, lng:139.40733108113682, weight:1.3, type:'station'},
-  {id:'kagawa-sta',         name:'相模線香川駅',             sub:'JR相模線',          lat:35.35648121501938,  lng:139.39962918312352, weight:1.2, type:'station'},
-  
-  // 商業施設
-  {id:'lusca',              name:'ラスカ茅ヶ崎',             sub:'茅ヶ崎駅直結',      lat:35.3310,            lng:139.4072,           weight:1.6, type:'shopping'},
-  {id:'terrace',            name:'テラスモール湘南',          sub:'辻堂駅北口',        lat:35.3379,            lng:139.4479,           weight:2.0, type:'shopping'},
-  {id:'aeon',               name:'イオン 茅ヶ崎中央店',      sub:'茅ヶ崎市茅ヶ崎',    lat:35.336005132707825, lng:139.40220526992636, weight:1.5, type:'shopping'},
-  {id:'blix',               name:'BLiX茅ヶ崎',              sub:'茅ヶ崎市新栄町',    lat:35.3320494666791,   lng:139.40467916281202, weight:1.3, type:'shopping'},
-  {id:'hiratsuka-lusca',    name:'平塚ラスカ',              sub:'JR平塚駅直結',      lat:35.3228,            lng:139.3497,           weight:1.7, type:'shopping'},
-  {id:'tamaya-minami',      name:'たまや 茅ヶ崎駅南店',      sub:'茅ヶ崎市共恵',      lat:35.330796141509886, lng:139.40863479075924, weight:1.2, type:'shopping'},
-  {id:'maxvalu-wakamatsu',  name:'マックスバリュEX茅ヶ崎若松店', sub:'茅ヶ崎市若松町', lat:35.33257606973468,  lng:139.41610911529713, weight:1.3, type:'shopping'},
-  
+  {id:'chigasaki-sta',      name:'茅ヶ崎駅',                    sub:'JR東海道線',        lat:STATION_LAT,        lng:STATION_LNG,        weight:2.0, type:'station'},
+  {id:'kita-chigasaki-sta', name:'相模線北茅ヶ崎駅',             sub:'JR相模線',          lat:35.339096243815575, lng:139.40733108113682, weight:1.3, type:'station'},
+  {id:'kagawa-sta',         name:'相模線香川駅',                sub:'JR相模線',          lat:35.35648121501938,  lng:139.39962918312352, weight:1.2, type:'station'},
+
+  // 商業施設（座標更新：ラスカ茅ケ崎・ラスカ平塚）
+  {id:'lusca',              name:'ラスカ茅ヶ崎',                sub:'茅ヶ崎駅直結',      lat:35.330729252054454, lng:139.4066498651019,  weight:1.6, type:'shopping'},
+  {id:'terrace',            name:'テラスモール湘南',             sub:'辻堂駅北口',        lat:35.3379,            lng:139.4479,           weight:2.0, type:'shopping'},
+  {id:'aeon',               name:'イオン 茅ヶ崎中央店',         sub:'茅ヶ崎市茅ヶ崎',    lat:35.336005132707825, lng:139.40220526992636, weight:1.5, type:'shopping'},
+  {id:'blix',               name:'BLiX茅ヶ崎',                 sub:'茅ヶ崎市新栄町',    lat:35.3320494666791,   lng:139.40467916281202, weight:1.3, type:'shopping'},
+  {id:'hiratsuka-lusca',    name:'ラスカ平塚',                 sub:'JR平塚駅直結',      lat:35.32831566083269,  lng:139.35092295945364, weight:1.7, type:'shopping'},
+  {id:'tamaya-minami',      name:'たまや 茅ヶ崎駅南店',         sub:'茅ヶ崎市共恵',      lat:35.330796141509886, lng:139.40863479075924, weight:1.2, type:'shopping'},
+  {id:'maxvalu-wakamatsu',  name:'マックスバリュEX茅ヶ崎若松店', sub:'茅ヶ崎市若松町',   lat:35.33257606973468,  lng:139.41610911529713, weight:1.3, type:'shopping'},
+
   // 小売・専門店
-  {id:'cainz',              name:'カインズ茅ヶ崎店',         sub:'茅ヶ崎市矢畑',      lat:35.3401,            lng:139.4312,           weight:1.1, type:'retail'},
-  {id:'homes',              name:'ホームズ茅ヶ崎店',         sub:'茅ヶ崎市本村',      lat:35.33783549684132,  lng:139.40903777991124, weight:1.4, type:'retail'},
-  {id:'workman-plus',       name:'ワークマンプラス 茅ヶ崎本村店', sub:'茅ヶ崎市本村',  lat:35.33953785798652,  lng:139.41108756627455, weight:1.1, type:'retail'},
-  // 魚卓本店：座標修正
-  {id:'uotaku',             name:'魚卓本店',                sub:'茅ヶ崎市共恵',      lat:35.32812487713309,  lng:139.40829065858483, weight:0.9, type:'retail'},
-  // サンドーレ：新規追加
-  {id:'sandore',            name:'サンドーレ 茅ヶ崎店',      sub:'茅ヶ崎市共恵',      lat:35.32537394185126,  lng:139.40848209995002, weight:1.0, type:'retail'},
-  
+  {id:'cainz',              name:'カインズ茅ヶ崎店',            sub:'茅ヶ崎市矢畑',      lat:35.3401,            lng:139.4312,           weight:1.1, type:'retail'},
+  {id:'homes',              name:'ホームズ茅ヶ崎店',            sub:'茅ヶ崎市本村',      lat:35.33783549684132,  lng:139.40903777991124, weight:1.4, type:'retail'},
+  {id:'workman-plus',       name:'ワークマンプラス 茅ヶ崎本村店',sub:'茅ヶ崎市本村',     lat:35.33953785798652,  lng:139.41108756627455, weight:1.1, type:'retail'},
+  {id:'uotaku',             name:'魚卓本店',                   sub:'茅ヶ崎市共恵',      lat:35.32812487713309,  lng:139.40829065858483, weight:0.9, type:'retail'},
+  {id:'sandore',            name:'サンドーレ 茅ヶ崎店',         sub:'茅ヶ崎市共恵',      lat:35.32537394185126,  lng:139.40848209995002, weight:1.0, type:'retail'},
+
   // 公共・業務施設
-  {id:'city-hall',          name:'茅ヶ崎市役所',             sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333,          lng:139.4044,           weight:0.8, type:'office'},
-  {id:'tokushukai',         name:'茅ヶ崎徳洲会病院',         sub:'茅ヶ崎市幸町',      lat:35.3308,            lng:139.4086,           weight:1.2, type:'office'},
-  {id:'azbil-shonan',       name:'アズビル湘南工場',         sub:'寒川町大曲',        lat:35.35466832869592,  lng:139.3939267416248,  weight:1.6, type:'office'},
-  
-  // アウトドア・レジャー
-  {id:'beach',              name:'サザンビーチちがさき',      sub:'茅ヶ崎海岸',        lat:35.3156,            lng:139.4057,           weight:1.2, type:'outdoor'},
-  {id:'chigasaki-park-bb',  name:'茅ヶ崎公園野球場',         sub:'茅ヶ崎公園内',      lat:35.31997826740944,  lng:139.4048266578595,  weight:1.0, type:'outdoor'}
+  {id:'city-hall',          name:'茅ヶ崎市役所',                sub:'茅ヶ崎市茅ヶ崎一丁目',lat:35.3333,           lng:139.4044,           weight:0.8, type:'office'},
+  {id:'tokushukai',         name:'茅ヶ崎徳洲会病院',            sub:'茅ヶ崎市幸町',      lat:35.3308,            lng:139.4086,           weight:1.2, type:'office'},
+  {id:'azbil-shonan',       name:'アズビル湘南工場',            sub:'寒川町大曲',        lat:35.35466832869592,  lng:139.3939267416248,  weight:1.6, type:'office'},
+
+  // アウトドア・レジャー（座標更新：サザンビーチ）
+  {id:'beach',              name:'サザンビーチちがさき',          sub:'茅ヶ崎海岸',        lat:35.31853494983861,  lng:139.40083361356858, weight:1.2, type:'outdoor'},
+  {id:'chigasaki-park-bb',  name:'茅ヶ崎公園野球場',            sub:'茅ヶ崎公園内',      lat:35.31997826740944,  lng:139.4048266578595,  weight:1.0, type:'outdoor'}
 ];
 
 const PATTERNS = {
@@ -304,14 +299,23 @@ function getStatusInfo(level){
                return {label:'非常に混雑',  cls:'status-full',   color:'#ff3b30'};
 }
 
-// ★ボトムシートを考慮した画面中央表示
-function setViewWithOffset(lat, lng, zoom) {
-  // ボトムシート(small=25vh)考慮：画面高さの12.5%下方オフセット
-  const yOffset = window.innerHeight * 0.125;
-  const targetPoint = map.project([lat, lng], zoom);
-  targetPoint.y -= yOffset;
-  const centerLatLng = map.unproject(targetPoint, zoom);
-  map.setView(centerLatLng, zoom, {animate: true, duration: 0.8});
+// ★確実な画面中央表示（fitBounds + paddingBottomRight方式）
+function focusOnFacility(lat, lng) {
+  // ボトムシートの高さを動的に取得
+  const sheet = document.getElementById('sheet');
+  const sheetHeight = sheet.offsetHeight;
+  
+  // fitBoundsでボトムシート分のパディングを設定
+  // 地図エンジン自体にUI領域を認識させる正統的手法
+  map.fitBounds([
+    [lat, lng],
+    [lat, lng]
+  ], {
+    maxZoom: 17,
+    paddingBottomRight: [0, sheetHeight],
+    animate: true,
+    duration: 0.8
+  });
 }
 
 function initMap(){
@@ -355,14 +359,19 @@ function initMap(){
       </div>
     `);
 
-  // 初期表示もオフセット適用
-  setViewWithOffset(STATION_LAT, STATION_LNG, 17);
+  // 初期表示（地図初期化完了後に実行）
+  setTimeout(() => {
+    focusOnFacility(STATION_LAT, STATION_LNG);
+  }, 150);
 }
 
 function goToStation(){
   personMarker.setLatLng([STATION_LAT, STATION_LNG]);
-  setViewWithOffset(STATION_LAT, STATION_LNG, 17);
   setSheetHeight('small');
+  // シート縮小アニメーション完了後に移動
+  setTimeout(() => {
+    focusOnFacility(STATION_LAT, STATION_LNG);
+  }, 350);
 }
 
 function updateHeatmap(){
@@ -403,8 +412,10 @@ function updateMarkers(){
         <div class="popup-status" style="color:${s.color}">${s.label}（${pct}%）</div>
       `);
     m.on('click',()=>{
-      setViewWithOffset(f.lat, f.lng, 17);
       setSheetHeight('small');
+      setTimeout(() => {
+        focusOnFacility(f.lat, f.lng);
+      }, 350);
     });
     markers[f.id]=m;
   });
@@ -429,9 +440,11 @@ function updateList(){
       <span class="status-badge ${s.cls}">${s.label}</span>
     `;
     item.addEventListener('click',()=>{
-      setViewWithOffset(f.lat, f.lng, 17);
-      markers[f.id]&&markers[f.id].openPopup();
       setSheetHeight('small');
+      setTimeout(() => {
+        focusOnFacility(f.lat, f.lng);
+        markers[f.id]&&markers[f.id].openPopup();
+      }, 350);
     });
     list.appendChild(item);
   });
