@@ -26,7 +26,6 @@ body{
   z-index:1;
 }
 
-/* ヘッダー（Apple探すアプリ準拠） */
 .header{
   position:absolute;
   top:0;left:0;width:100%;
@@ -58,12 +57,12 @@ body{
 }
 
 .refresh-btn{
-  width:32px;height:32px;
+  width:36px;height:36px;
   border-radius:50%;
   background:#007aff;
   border:none;
   color:white;
-  font-size:16px;
+  font-size:18px;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
   box-shadow:0 2px 8px rgba(0,122,255,0.3);
@@ -81,7 +80,7 @@ body{
   z-index:1000;
   display:flex;flex-direction:column;
   transition:height 0.3s cubic-bezier(0.25,0.8,0.25,1);
-  height:50vh;
+  height:52vh;
   padding-bottom:env(safe-area-inset-bottom,20px);
 }
 
@@ -91,10 +90,12 @@ body{
   border-radius:2px;
   margin:8px auto 0;
   cursor:grab;
+  padding:12px 40px;
+  margin-top:-8px;
 }
 
 .sheet-header{
-  padding:12px 20px 8px;
+  padding:8px 20px 6px;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -106,176 +107,212 @@ body{
   color:#1c1c1e;
 }
 
-/* Apple「探す」UI（みーちゃん表示） */
+/* みーちゃん表示（Apple「探す」完全準拠） */
 .person-item{
   display:flex;
   align-items:center;
-  padding:12px 20px;
+  padding:16px 20px;
   border-bottom:0.5px solid #e5e5ea;
-  background:rgba(255,255,255,0.5);
   cursor:pointer;
+  min-height:68px;
 }
 
-.person-item:active{
-  background:rgba(0,0,0,0.05);
-}
+.person-item:active{background:rgba(0,0,0,0.05);}
 
 .person-icon-wrapper{
   position:relative;
   width:48px;height:48px;
   border-radius:50%;
-  background:linear-gradient(135deg, #a0c4ff, #4361ee);
+  background:linear-gradient(160deg,#b8d4ff 0%,#5b8dee 50%,#3a6fd8 100%);
   display:flex;justify-content:center;align-items:center;
   flex-shrink:0;
   margin-right:14px;
-  box-shadow:0 2px 8px rgba(67,97,238,0.3);
+  box-shadow:0 3px 10px rgba(58,111,216,0.4);
+  overflow:hidden;
 }
 
-.person-icon-head{
-  width:16px;height:16px;
-  background:#fff;
+.person-silhouette{
+  position:absolute;
+  bottom:-2px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.person-head{
+  width:17px;height:17px;
+  background:rgba(255,255,255,0.92);
   border-radius:50%;
-  position:absolute;top:8px;
+  margin-bottom:1px;
 }
 
-.person-icon-body{
-  width:30px;height:18px;
-  background:#fff;
-  border-radius:15px 15px 0 0;
-  position:absolute;bottom:4px;
+.person-body{
+  width:32px;height:20px;
+  background:rgba(255,255,255,0.92);
+  border-radius:16px 16px 0 0;
 }
 
 .person-star{
   position:absolute;
-  bottom:-2px;right:-2px;
-  width:18px;height:18px;
+  bottom:-1px;right:-1px;
+  width:20px;height:20px;
   background:#ffcc00;
   border-radius:50%;
-  border:2px solid #fff;
+  border:2.5px solid #fff;
   display:flex;justify-content:center;align-items:center;
-  box-shadow:0 1px 3px rgba(0,0,0,0.2);
+  box-shadow:0 1px 4px rgba(0,0,0,0.25);
+  z-index:2;
 }
 
-.person-star-inner{
-  width:10px;height:10px;
-  background:#fff;
-  clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+.star-shape{
+  font-size:9px;
+  color:#fff;
+  line-height:1;
+  margin-top:-1px;
 }
 
 .person-info{flex:1;}
 
 .person-name{
   font-size:17px;
-  font-weight:700;
+  font-weight:600;
   color:#1c1c1e;
-  margin-bottom:2px;
+  margin-bottom:3px;
 }
 
 .person-location{
   font-size:13px;
   color:#8e8e93;
-  line-height:1.3;
+  line-height:1.4;
 }
 
 .person-distance{
   font-size:15px;
   color:#8e8e93;
-  font-weight:500;
+  font-weight:400;
 }
 
 /* 凡例 */
 .legend{
   display:flex;
   gap:12px;
-  padding:12px 20px 8px;
+  padding:10px 20px 6px;
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
+  flex-shrink:0;
 }
 
 .legend::-webkit-scrollbar{display:none;}
 
 .legend-item{
-  display:flex;align-items:center;gap:4px;
+  display:flex;align-items:center;gap:5px;
   white-space:nowrap;
   font-size:11px;color:#48484a;font-weight:500;
 }
 
 .legend-dot{
-  width:8px;height:8px;
+  width:9px;height:9px;
   border-radius:50%;
+  flex-shrink:0;
 }
 
 .divider{
   height:0.5px;
   background:#e5e5ea;
-  margin:0 20px 8px;
+  margin:0 20px 4px;
+  flex-shrink:0;
 }
 
-/* 施設リスト */
+/* 施設リスト（タップしやすさ最優先） */
 .facility-scroll{
   flex:1;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:0 20px;
+  padding:0 16px;
 }
 
 .facility-scroll::-webkit-scrollbar{display:none;}
 
 .facility-item{
   display:flex;align-items:center;
-  padding:10px 0;
+  min-height:60px;
+  padding:14px 8px;
   border-bottom:0.5px solid #f0f0f5;
-  gap:12px;
+  gap:14px;
   cursor:pointer;
+  border-radius:10px;
+  transition:background 0.1s;
 }
 
 .facility-item:last-child{border-bottom:none;}
-.facility-item:active{background:rgba(0,0,0,0.03);border-radius:8px;margin:0 -8px;padding:10px 8px;}
+
+.facility-item:active{
+  background:rgba(0,122,255,0.06);
+}
+
+.status-dot-wrap{
+  width:36px;height:36px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
 
 .status-dot{
-  width:10px;height:10px;
+  width:14px;height:14px;
   border-radius:50%;
-  box-shadow:0 0 4px rgba(0,0,0,0.15);
+  box-shadow:0 0 6px rgba(0,0,0,0.2);
 }
 
 .facility-info{flex:1;min-width:0;}
 
 .facility-name{
-  font-size:15px;font-weight:500;color:#1c1c1e;
+  font-size:16px;font-weight:600;color:#1c1c1e;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 
 .facility-sub{
-  font-size:12px;color:#8e8e93;margin-top:1px;
+  font-size:13px;color:#8e8e93;margin-top:2px;
 }
 
 .status-badge{
-  font-size:12px;font-weight:600;
-  padding:3px 8px;border-radius:8px;
-  min-width:48px;text-align:center;
+  font-size:13px;font-weight:600;
+  padding:6px 12px;border-radius:12px;
+  min-width:76px;text-align:center;
+  flex-shrink:0;
 }
 
 .status-empty  {background:#e8f2ff;color:#007aff;}
 .status-light  {background:#f0f8f0;color:#34c759;}
 .status-normal {background:#f2f2f7;color:#8e8e93;}
-.status-busy   {background:#fff2f0;color:#ff9500;}
+.status-busy   {background:#fff5e8;color:#ff9500;}
 .status-full   {background:#fff0f0;color:#ff3b30;}
 
 /* ポップアップ */
 .leaflet-popup-content-wrapper{
-  border-radius:12px !important;
+  border-radius:14px !important;
   font-family:'Meiryo','Yu Gothic',sans-serif !important;
-  box-shadow:0 4px 16px rgba(0,0,0,0.15) !important;
+  box-shadow:0 6px 20px rgba(0,0,0,0.18) !important;
+  min-width:180px !important;
 }
 
 .leaflet-popup-content{
-  margin:12px 14px !important;
+  margin:14px 16px !important;
   font-size:14px !important;
-  line-height:1.5 !important;
+  line-height:1.6 !important;
 }
 
-.popup-name{font-weight:700;font-size:15px;color:#1c1c1e;margin-bottom:4px;}
-.popup-status{font-size:13px;font-weight:600;}
+.popup-name{
+  font-weight:700;font-size:16px;color:#1c1c1e;margin-bottom:4px;
+}
+
+.popup-sub{
+  color:#8e8e93;font-size:13px;margin-bottom:6px;
+}
+
+.popup-status{
+  font-size:14px;font-weight:600;
+}
 </style>
 </head>
 <body>
@@ -294,25 +331,30 @@ body{
 
 <div class="bottom-sheet" id="sheet">
   <div class="handle" id="handle"></div>
-  
+
   <div class="sheet-header">
     <div class="sheet-title">人を探す</div>
   </div>
 
-  <!-- みーちゃん表示（Apple探すアプリ準拠） -->
+  <!-- みーちゃん（Apple「探す」完全準拠） -->
   <div class="person-item" onclick="focusPerson()">
     <div class="person-icon-wrapper">
-      <div class="person-icon-head"></div>
-      <div class="person-icon-body"></div>
-      <div class="person-star"><div class="person-star-inner"></div></div>
+      <div class="person-silhouette">
+        <div class="person-head"></div>
+        <div class="person-body"></div>
+      </div>
+      <div class="person-star">
+        <span class="star-shape">★</span>
+      </div>
     </div>
     <div class="person-info">
       <div class="person-name">みーちゃん</div>
-      <div class="person-location" id="mi-location">神奈川県茅ヶ崎市・<span id="mi-time">たった今</span></div>
+      <div class="person-location">神奈川県茅ヶ崎市・<span id="mi-time">たった今</span></div>
     </div>
     <div class="person-distance">0 km</div>
   </div>
-  
+
+  <!-- 凡例 -->
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:#007aff"></div>空き</div>
     <div class="legend-item"><div class="legend-dot" style="background:#34c759"></div>やや空き</div>
@@ -320,11 +362,11 @@ body{
     <div class="legend-item"><div class="legend-dot" style="background:#ff9500"></div>混雑</div>
     <div class="legend-item"><div class="legend-dot" style="background:#ff3b30"></div>非常に混雑</div>
   </div>
-  
+
   <div class="divider"></div>
-  
+
   <div class="facility-scroll" id="facility-list">
-    <div style="text-align:center;padding:20px;color:#8e8e93;">データを取得中...</div>
+    <div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px;">データを取得中...</div>
   </div>
 </div>
 
@@ -332,15 +374,20 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-// 施設データ
 const FACILITIES = [
-  {id:'chigasaki-sta', name:'茅ヶ崎駅', sub:'JR東海道線', lat:35.3304, lng:139.4064, weight:2.0, type:'station'},
-  {id:'lusca', name:'ラスカ茅ヶ崎', sub:'茅ヶ崎駅直結', lat:35.3310, lng:139.4072, weight:1.6, type:'shopping'},
-  {id:'terrace', name:'テラスモール湘南', sub:'辻堂駅北口', lat:35.3379, lng:139.4479, weight:2.0, type:'shopping'},
-  {id:'aeon', name:'イオン茅ヶ崎中央店', sub:'茅ヶ崎市茶屋町', lat:35.3318, lng:139.4098, weight:1.5, type:'shopping'},
-  {id:'cainz', name:'カインズ茅ヶ崎店', sub:'茅ヶ崎市矢畑', lat:35.3401, lng:139.4312, weight:1.1, type:'retail'},
-  {id:'city-hall', name:'茅ヶ崎市役所', sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333, lng:139.4044, weight:0.8, type:'office'},
-  {id:'beach', name:'サザンビーチちがさき', sub:'茅ヶ崎海岸', lat:35.3156, lng:139.4057, weight:1.2, type:'outdoor'}
+  // 既存施設
+  {id:'chigasaki-sta', name:'茅ヶ崎駅',           sub:'JR東海道線',       lat:35.3304, lng:139.4064, weight:2.0, type:'station'},
+  {id:'lusca',         name:'ラスカ茅ヶ崎',        sub:'茅ヶ崎駅直結',     lat:35.3310, lng:139.4072, weight:1.6, type:'shopping'},
+  {id:'terrace',       name:'テラスモール湘南',     sub:'辻堂駅北口',       lat:35.3379, lng:139.4479, weight:2.0, type:'shopping'},
+  {id:'aeon',          name:'イオン茅ヶ崎中央店',  sub:'茅ヶ崎市茶屋町',   lat:35.3318, lng:139.4098, weight:1.5, type:'shopping'},
+  {id:'cainz',         name:'カインズ茅ヶ崎店',    sub:'茅ヶ崎市矢畑',     lat:35.3401, lng:139.4312, weight:1.1, type:'retail'},
+  {id:'city-hall',     name:'茅ヶ崎市役所',        sub:'茅ヶ崎市茅ヶ崎一丁目', lat:35.3333, lng:139.4044, weight:0.8, type:'office'},
+  {id:'beach',         name:'サザンビーチちがさき', sub:'茅ヶ崎海岸',       lat:35.3156, lng:139.4057, weight:1.2, type:'outdoor'},
+  // 新規追加施設
+  {id:'blix',          name:'BLiX茅ヶ崎',         sub:'茅ヶ崎市新栄町',   lat:35.3298, lng:139.4051, weight:1.3, type:'shopping'},
+  {id:'hiratsuka-lusca',name:'平塚ラスカ',         sub:'JR平塚駅直結',     lat:35.3228, lng:139.3497, weight:1.7, type:'shopping'},
+  {id:'tokushukai',    name:'茅ヶ崎徳洲会病院',   sub:'茅ヶ崎市幸町',     lat:35.3308, lng:139.4086, weight:1.2, type:'office'},
+  {id:'uotaku',        name:'魚卓',               sub:'茅ヶ崎市元町',     lat:35.3301, lng:139.4055, weight:0.9, type:'retail'}
 ];
 
 // みーちゃん位置（茅ヶ崎駅北側）
@@ -362,7 +409,7 @@ const PATTERNS = {
   },
   office:{
     weekday:[0,0,0,0,0,0,0,0.15,0.65,0.85,0.75,0.55,0.45,0.75,0.85,0.65,0.35,0.1,0,0,0,0,0,0],
-    weekend:[0,0,0,0,0,0,0,0,0.1,0.15,0.1,0.05,0,0,0,0,0,0,0,0,0,0,0,0]
+    weekend:[0,0,0,0,0,0,0,0,0.15,0.2,0.15,0.1,0.05,0,0,0,0,0,0,0,0,0,0,0]
   },
   outdoor:{
     weekday:[0,0,0,0,0,0,0.1,0.15,0.25,0.35,0.45,0.5,0.45,0.4,0.45,0.4,0.3,0.2,0.1,0.05,0,0,0,0],
@@ -381,104 +428,155 @@ function getCongestion(facility){
   const pattern = PATTERNS[facility.type]||PATTERNS.shopping;
   const key = isWeekend?'weekend':'weekday';
   const base = pattern[key][h];
-  
   const seed = (facility.id.charCodeAt(0)*7 + Math.floor(now.getTime()/(5*60*1000))*3) % 100 / 100;
-  const variation = (seed - 0.5) * 0.25;
-  
+  const variation = (seed - 0.5) * 0.2;
   return Math.max(0.05, Math.min(0.95, (base * facility.weight) + variation));
 }
 
 function getStatusInfo(level){
-  if(level<0.2) return {label:'空き',      class:'status-empty',  color:'#007aff'};
-  if(level<0.4) return {label:'やや空き',  class:'status-light',  color:'#34c759'};
-  if(level<0.6) return {label:'普通',      class:'status-normal', color:'#8e8e93'};
-  if(level<0.8) return {label:'混雑',      class:'status-busy',   color:'#ff9500'};
-               return {label:'非常に混雑', class:'status-full',   color:'#ff3b30'};
+  if(level<0.2) return {label:'空き',       cls:'status-empty',  color:'#007aff'};
+  if(level<0.4) return {label:'やや空き',   cls:'status-light',  color:'#34c759'};
+  if(level<0.6) return {label:'普通',       cls:'status-normal', color:'#8e8e93'};
+  if(level<0.8) return {label:'混雑',       cls:'status-busy',   color:'#ff9500'};
+               return {label:'非常に混雑',  cls:'status-full',   color:'#ff3b30'};
 }
 
 function initMap(){
-  map = L.map('map',{zoomControl:false, attributionControl:false}).setView([PERSON_LAT, PERSON_LNG], 14);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+  // 200フィート相当の高解像度（zoom 17）
+  map = L.map('map',{
+    zoomControl:false,
+    attributionControl:false
+  }).setView([PERSON_LAT, PERSON_LNG], 17);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    maxZoom:19
+  }).addTo(map);
+
   map.on('click', ()=>setSheetHeight('small'));
 
-  // みーちゃんピン（Apple探すアプリ準拠）
+  // みーちゃんピン（Apple「探す」完全準拠）
   const personIcon = L.divIcon({
-    className: '',
-    html: `
-      <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, #a0c4ff, #4361ee);border:3px solid #fff;box-shadow:0 4px 12px rgba(67,97,238,0.4);display:flex;justify-content:center;align-items:center;">
-        <div style="width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:6px;"></div>
-        <div style="width:26px;height:16px;background:#fff;border-radius:13px 13px 0 0;position:absolute;bottom:4px;"></div>
+    className:'',
+    html:`
+      <div style="
+        position:relative;
+        width:44px;height:44px;
+        border-radius:50%;
+        background:linear-gradient(160deg,#b8d4ff 0%,#5b8dee 50%,#3a6fd8 100%);
+        border:3px solid #fff;
+        box-shadow:0 4px 14px rgba(58,111,216,0.5);
+        overflow:hidden;
+        display:flex;justify-content:center;align-items:flex-end;
+      ">
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:-2px;">
+          <div style="width:16px;height:16px;background:rgba(255,255,255,0.92);border-radius:50%;margin-bottom:1px;"></div>
+          <div style="width:30px;height:18px;background:rgba(255,255,255,0.92);border-radius:15px 15px 0 0;"></div>
+        </div>
       </div>
+      <div style="
+        position:absolute;
+        bottom:-2px;right:-2px;
+        width:20px;height:20px;
+        background:#ffcc00;
+        border-radius:50%;
+        border:2.5px solid #fff;
+        display:flex;justify-content:center;align-items:center;
+        box-shadow:0 1px 4px rgba(0,0,0,0.25);
+        font-size:9px;color:#fff;line-height:1;
+      ">★</div>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20]
+    iconSize:[44,44],
+    iconAnchor:[22,22]
   });
-  
-  personMarker = L.marker([PERSON_LAT, PERSON_LNG], {icon: personIcon, zIndexOffset: 1000}).addTo(map);
+
+  personMarker = L.marker([PERSON_LAT, PERSON_LNG],{icon:personIcon, zIndexOffset:1000})
+    .addTo(map)
+    .bindPopup('<div style="font-family:Meiryo,sans-serif;"><b style="font-size:15px;">みーちゃん</b><br><span style="color:#8e8e93;font-size:12px;">神奈川県茅ヶ崎市・たった今</span></div>');
 }
 
-function focusPerson() {
-  map.setView([PERSON_LAT, PERSON_LNG], 15, {animate:true});
+function focusPerson(){
+  map.setView([PERSON_LAT, PERSON_LNG], 17, {animate:true});
+  personMarker.openPopup();
   setSheetHeight('small');
 }
 
 function updateHeatmap(){
   if(heatLayer) map.removeLayer(heatLayer);
-  const heatData = [];
+  const heatData=[];
   FACILITIES.forEach(f=>{
-    const level = getCongestion(f);
-    if(level < 0.1) return;
-    const pointCount = Math.max(5, Math.floor(level * 35));
-    for(let i=0; i<pointCount; i++){
-      const angle = (Math.PI * 2 * i) / pointCount;
-      const radius = Math.random() * 0.007;
-      heatData.push([f.lat + Math.sin(angle) * radius * 0.8, f.lng + Math.cos(angle) * radius, level]);
+    const level=getCongestion(f);
+    if(level<0.1) return;
+    const pts=Math.max(5,Math.floor(level*35));
+    for(let i=0;i<pts;i++){
+      const angle=(Math.PI*2*i)/pts;
+      const r=Math.random()*0.004;
+      heatData.push([f.lat+Math.sin(angle)*r*0.8, f.lng+Math.cos(angle)*r, level]);
     }
-    heatData.push([f.lat, f.lng, level]);
+    heatData.push([f.lat,f.lng,level]);
   });
-
-  heatLayer = L.heatLayer(heatData, {
-    radius: 40, blur: 25, maxZoom: 16,
-    gradient: {0.0:'#007aff', 0.35:'#34c759', 0.55:'#8e8e93', 0.75:'#ff9500', 1.0:'#ff3b30'}
+  heatLayer=L.heatLayer(heatData,{
+    radius:35,blur:20,maxZoom:19,
+    gradient:{0.0:'#007aff',0.35:'#34c759',0.55:'#8e8e93',0.75:'#ff9500',1.0:'#ff3b30'}
   }).addTo(map);
 }
 
 function updateMarkers(){
-  Object.values(markers).forEach(m => map.removeLayer(m));
+  Object.values(markers).forEach(m=>map.removeLayer(m));
   FACILITIES.forEach(f=>{
-    const level = getCongestion(f);
-    const status = getStatusInfo(level);
-    const percent = Math.round(level * 100);
+    const level=getCongestion(f);
+    const s=getStatusInfo(level);
+    const pct=Math.round(level*100);
 
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:9px;height:9px;border-radius:50%;background:${status.color};border:2px solid white;box-shadow:0 0 5px rgba(0,0,0,0.2);"></div>`,
-      iconSize: [9,9], iconAnchor: [4.5,4.5]
+    // タップしやすい大きめマーカー（28px）
+    const icon=L.divIcon({
+      className:'',
+      html:`
+        <div style="
+          width:28px;height:28px;
+          border-radius:50%;
+          background:${s.color};
+          border:3px solid #fff;
+          box-shadow:0 2px 8px rgba(0,0,0,0.25);
+          display:flex;align-items:center;justify-content:center;
+        "></div>
+      `,
+      iconSize:[28,28],
+      iconAnchor:[14,14]
     });
 
-    const marker = L.marker([f.lat, f.lng], {icon}).addTo(map)
-      .bindPopup(`<div class="popup-name">${f.name}</div><div style="color:#8e8e93;font-size:12px;margin-bottom:4px">${f.sub}</div><div class="popup-status" style="color:${status.color}">${status.label}（${percent}%）</div>`);
-    marker.on('click', ()=>setSheetHeight('large'));
-    markers[f.id] = marker;
+    const m=L.marker([f.lat,f.lng],{icon})
+      .addTo(map)
+      .bindPopup(`
+        <div class="popup-name">${f.name}</div>
+        <div class="popup-sub">${f.sub}</div>
+        <div class="popup-status" style="color:${s.color}">${s.label}（${pct}%）</div>
+      `);
+    m.on('click',()=>setSheetHeight('small'));
+    markers[f.id]=m;
   });
 }
 
 function updateList(){
-  const list = document.getElementById('facility-list');
-  list.innerHTML = '';
+  const list=document.getElementById('facility-list');
+  list.innerHTML='';
   FACILITIES.forEach(f=>{
-    const level = getCongestion(f);
-    const status = getStatusInfo(level);
-    const item = document.createElement('div');
-    item.className = 'facility-item';
-    item.innerHTML = `
-      <div class="status-dot" style="background:${status.color}"></div>
-      <div class="facility-info"><div class="facility-name">${f.name}</div><div class="facility-sub">${f.sub}</div></div>
-      <span class="status-badge ${status.class}">${status.label}</span>
+    const level=getCongestion(f);
+    const s=getStatusInfo(level);
+    const item=document.createElement('div');
+    item.className='facility-item';
+    item.innerHTML=`
+      <div class="status-dot-wrap" style="background:${s.color}18;">
+        <div class="status-dot" style="background:${s.color}"></div>
+      </div>
+      <div class="facility-info">
+        <div class="facility-name">${f.name}</div>
+        <div class="facility-sub">${f.sub}</div>
+      </div>
+      <span class="status-badge ${s.cls}">${s.label}</span>
     `;
-    item.addEventListener('click', ()=>{
-      map.setView([f.lat, f.lng], 15, {animate:true});
-      markers[f.id] && markers[f.id].openPopup();
+    item.addEventListener('click',()=>{
+      map.setView([f.lat,f.lng],17,{animate:true});
+      markers[f.id]&&markers[f.id].openPopup();
       setSheetHeight('small');
     });
     list.appendChild(item);
@@ -486,78 +584,48 @@ function updateList(){
 }
 
 function updateTime(){
-  const now = new Date();
-  const weekdays = ['日','月','火','水','木','金','土'];
-  document.getElementById('current-time').textContent = `${now.getMonth()+1}月${now.getDate()}日（${weekdays[now.getDay()]}）${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 更新`;
-  
-  // みーちゃん時刻更新
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
-  const totalSeconds = minutes * 60 + seconds;
-  
-  let timeText;
-  if(totalSeconds < 60) timeText = 'たった今';
-  else if(totalSeconds < 300) timeText = '数分前';
-  else if(totalSeconds < 1800) timeText = `${Math.floor(totalSeconds/60)}分前`;
-  else timeText = `${Math.floor(totalSeconds/3600)}時間前`;
-  
-  document.getElementById('mi-time').textContent = timeText;
+  const now=new Date();
+  const wd=['日','月','火','水','木','金','土'];
+  document.getElementById('current-time').textContent=
+    `${now.getMonth()+1}月${now.getDate()}日（${wd[now.getDay()]}）${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 更新`;
+  const sec=now.getMinutes()*60+now.getSeconds();
+  document.getElementById('mi-time').textContent=
+    sec<60?'たった今':sec<300?'数分前':`${Math.floor(sec/60)}分前`;
 }
 
-const HEIGHTS = {small:'25vh', mid:'50vh', large:'75vh'};
-let currentSize = 'mid';
-
-function setSheetHeight(size){
-  currentSize = size;
-  document.getElementById('sheet').style.height = HEIGHTS[size];
-}
+const HEIGHTS={small:'25vh',mid:'52vh',large:'78vh'};
+function setSheetHeight(s){document.getElementById('sheet').style.height=HEIGHTS[s];}
 
 (function setupDrag(){
-  const sheet = document.getElementById('sheet');
-  const handle = document.getElementById('handle');
-  let startY = 0, startH = 0, dragging = false;
-
-  function onStart(e){
-    dragging = true;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    startH = sheet.offsetHeight;
-    sheet.style.transition = 'none';
+  const sheet=document.getElementById('sheet');
+  const handle=document.getElementById('handle');
+  let sy=0,sh=0,drag=false;
+  function start(e){drag=true;sy=e.touches?e.touches[0].clientY:e.clientY;sh=sheet.offsetHeight;sheet.style.transition='none';}
+  function move(e){
+    if(!drag)return;e.preventDefault();
+    const y=e.touches?e.touches[0].clientY:e.clientY;
+    sheet.style.height=Math.max(80,Math.min(window.innerHeight*0.82,sh+(sy-y)))+'px';
   }
-  function onMove(e){
-    if(!dragging) return;
-    e.preventDefault();
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-    const diff = startY - y;
-    sheet.style.height = Math.max(80, Math.min(window.innerHeight*0.8, startH + diff)) + 'px';
-  }
-  function onEnd(){
-    if(!dragging) return;
-    dragging = false;
-    sheet.style.transition = 'height 0.3s cubic-bezier(0.25,0.8,0.25,1)';
-    const h = sheet.offsetHeight, wh = window.innerHeight;
-    if(h < wh*0.35) setSheetHeight('small');
-    else if(h < wh*0.6) setSheetHeight('mid');
+  function end(){
+    if(!drag)return;drag=false;
+    sheet.style.transition='height 0.3s cubic-bezier(0.25,0.8,0.25,1)';
+    const h=sheet.offsetHeight,wh=window.innerHeight;
+    if(h<wh*0.35) setSheetHeight('small');
+    else if(h<wh*0.62) setSheetHeight('mid');
     else setSheetHeight('large');
   }
-
-  handle.addEventListener('touchstart', onStart, {passive:true});
-  handle.addEventListener('touchmove', onMove, {passive:false});
-  handle.addEventListener('touchend', onEnd);
-  handle.addEventListener('mousedown', onStart);
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onEnd);
+  handle.addEventListener('touchstart',start,{passive:true});
+  handle.addEventListener('touchmove',move,{passive:false});
+  handle.addEventListener('touchend',end);
+  handle.addEventListener('mousedown',start);
+  document.addEventListener('mousemove',move);
+  document.addEventListener('mouseup',end);
 })();
 
-function updateAll(){
-  updateTime();
-  updateHeatmap();
-  updateMarkers();
-  updateList();
-}
-
+function updateAll(){updateTime();updateHeatmap();updateMarkers();updateList();}
 initMap();
 updateAll();
-setInterval(updateAll, 5*60*1000);
+setInterval(updateAll,5*60*1000);
 </script>
 </body>
 </html>
