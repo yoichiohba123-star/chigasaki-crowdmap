@@ -54,11 +54,11 @@ body{
 .sheet-header{padding:8px 20px 6px;display:flex;justify-content:space-between;align-items:center;}
 .sheet-title{font-size:22px;font-weight:700;color:#1c1c1e;}
 
-/* みーちゃん表示（確実タップ保証） */
+/* みーちゃん表示（施設リストと同じスタイル） */
 .person-item{
   display:flex;align-items:center;padding:16px 20px;
   border-bottom:0.5px solid #e5e5ea;cursor:pointer;min-height:68px;
-  -webkit-user-select:none;user-select:none;
+  transition:background 0.1s;
 }
 .person-item:active{background:rgba(0,0,0,0.05);}
 
@@ -178,8 +178,8 @@ body{
     <div class="sheet-title">人を探す</div>
   </div>
 
-  <!-- みーちゃん：グローバル関数で確実動作保証 -->
-  <div class="person-item" onclick="window.focusPerson()" role="button" tabindex="0">
+  <!-- みーちゃん：onclick削除、JS側でaddEventListener設定 -->
+  <div class="person-item" id="person-btn">
     <div class="person-icon-wrapper">
       <div class="person-silhouette">
         <div class="person-head"></div>
@@ -215,11 +215,15 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
+// 茅ヶ崎駅正確座標（戻り先）
+const CHIGASAKI_STATION_LAT = 35.33031814797218;
+const CHIGASAKI_STATION_LNG = 139.40650049269422;
+
 // みーちゃん表示位置
 const PERSON_LAT = 35.3325;
 const PERSON_LNG = 139.4060;
 
-// 施設データ（19施設・正確座標）
+// 施設データ（19施設・BLiX座標修正済み）
 const FACILITIES = [
   // 交通拠点
   {id:'chigasaki-sta',      name:'茅ヶ崎駅',                 sub:'JR東海道線',        lat:35.33031814797218,  lng:139.40650049269422, weight:2.0, type:'station'},
@@ -230,7 +234,8 @@ const FACILITIES = [
   {id:'lusca',              name:'ラスカ茅ヶ崎',             sub:'茅ヶ崎駅直結',      lat:35.3310,            lng:139.4072,           weight:1.6, type:'shopping'},
   {id:'terrace',            name:'テラスモール湘南',          sub:'辻堂駅北口',        lat:35.3379,            lng:139.4479,           weight:2.0, type:'shopping'},
   {id:'aeon',               name:'イオン 茅ヶ崎中央店',      sub:'茅ヶ崎市茅ヶ崎',    lat:35.336005132707825, lng:139.40220526992636, weight:1.5, type:'shopping'},
-  {id:'blix',               name:'BLiX茅ヶ崎',              sub:'茅ヶ崎市新栄町',    lat:35.3298,            lng:139.4051,           weight:1.3, type:'shopping'},
+  // BLiX座標修正：35.3320494666791, 139.40467916281202
+  {id:'blix',               name:'BLiX茅ヶ崎',              sub:'茅ヶ崎市新栄町',    lat:35.3320494666791,   lng:139.40467916281202, weight:1.3, type:'shopping'},
   {id:'hiratsuka-lusca',    name:'平塚ラスカ',              sub:'JR平塚駅直結',      lat:35.3228,            lng:139.3497,           weight:1.7, type:'shopping'},
   {id:'tamaya-minami',      name:'たまや 茅ヶ崎駅南店',      sub:'茅ヶ崎市共恵',      lat:35.330796141509886, lng:139.40863479075924, weight:1.2, type:'shopping'},
   {id:'maxvalu-wakamatsu',  name:'マックスバリュEX茅ヶ崎若松店', sub:'茅ヶ崎市若松町', lat:35.33257606973468,  lng:139.41610911529713, weight:1.3, type:'shopping'},
@@ -278,15 +283,6 @@ let map, heatLayer;
 const markers = {};
 let personMarker;
 
-// ★最重要：みーちゃんタップ機能をグローバルに定義（確実動作保証）★
-window.focusPerson = function() {
-  if (map) {
-    // 茅ヶ崎駅の正確座標に移動（座標直接指定でエラー排除）
-    map.setView([35.33031814797218, 139.40650049269422], 17, {animate:true, duration:0.8});
-    setSheetHeight('small');
-  }
-};
-
 function getCongestion(facility){
   const now = new Date();
   const h = now.getHours();
@@ -310,7 +306,7 @@ function getStatusInfo(level){
 function initMap(){
   // 初期表示：茅ヶ崎駅正確座標・zoom17
   map = L.map('map',{zoomControl:false,attributionControl:false})
-          .setView([35.33031814797218, 139.40650049269422], 17);
+          .setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
   map.on('click', ()=>setSheetHeight('small'));
 
@@ -351,8 +347,20 @@ function initMap(){
       </div>
     `);
 
-  // 地図上のみーちゃんピンからも茅ヶ崎駅に戻る（二重対策）
-  personMarker.on('click', window.focusPerson);
+  // ★重要：みーちゃんタップ機能を施設リストと同じ方式で設定★
+  const personBtn = document.getElementById('person-btn');
+  if (personBtn) {
+    personBtn.addEventListener('click', function() {
+      map.setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17, {animate:true, duration:0.8});
+      setSheetHeight('small');
+    });
+  }
+
+  // 地図上のみーちゃんピンからも茅ヶ崎駅に戻る
+  personMarker.on('click', function() {
+    map.setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17, {animate:true, duration:0.8});
+    setSheetHeight('small');
+  });
 }
 
 function updateHeatmap(){
@@ -415,6 +423,7 @@ function updateList(){
       </div>
       <span class="status-badge ${s.cls}">${s.label}</span>
     `;
+    // 施設リストと同じイベント設定方式
     item.addEventListener('click',()=>{
       map.setView([f.lat,f.lng],17,{animate:true});
       markers[f.id]&&markers[f.id].openPopup();
