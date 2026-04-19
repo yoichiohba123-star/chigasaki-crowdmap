@@ -54,10 +54,11 @@ body{
 .sheet-header{padding:8px 20px 6px;display:flex;justify-content:space-between;align-items:center;}
 .sheet-title{font-size:22px;font-weight:700;color:#1c1c1e;}
 
-/* みーちゃん表示 */
+/* みーちゃん表示（確実タップ保証） */
 .person-item{
   display:flex;align-items:center;padding:16px 20px;
   border-bottom:0.5px solid #e5e5ea;cursor:pointer;min-height:68px;
+  -webkit-user-select:none;user-select:none;
 }
 .person-item:active{background:rgba(0,0,0,0.05);}
 
@@ -177,8 +178,8 @@ body{
     <div class="sheet-title">人を探す</div>
   </div>
 
-  <!-- みーちゃん：JavaScript方式でイベント競合を回避 -->
-  <div class="person-item" id="person-btn">
+  <!-- みーちゃん：グローバル関数で確実動作保証 -->
+  <div class="person-item" onclick="window.focusPerson()" role="button" tabindex="0">
     <div class="person-icon-wrapper">
       <div class="person-silhouette">
         <div class="person-head"></div>
@@ -214,15 +215,11 @@ body{
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-// 茅ヶ崎駅正確座標（戻り先）
-const CHIGASAKI_STATION_LAT = 35.33031814797218;
-const CHIGASAKI_STATION_LNG = 139.40650049269422;
-
 // みーちゃん表示位置
 const PERSON_LAT = 35.3325;
 const PERSON_LNG = 139.4060;
 
-// 施設データ（19施設・正確座標反映）
+// 施設データ（19施設・正確座標）
 const FACILITIES = [
   // 交通拠点
   {id:'chigasaki-sta',      name:'茅ヶ崎駅',                 sub:'JR東海道線',        lat:35.33031814797218,  lng:139.40650049269422, weight:2.0, type:'station'},
@@ -281,6 +278,15 @@ let map, heatLayer;
 const markers = {};
 let personMarker;
 
+// ★最重要：みーちゃんタップ機能をグローバルに定義（確実動作保証）★
+window.focusPerson = function() {
+  if (map) {
+    // 茅ヶ崎駅の正確座標に移動（座標直接指定でエラー排除）
+    map.setView([35.33031814797218, 139.40650049269422], 17, {animate:true, duration:0.8});
+    setSheetHeight('small');
+  }
+};
+
 function getCongestion(facility){
   const now = new Date();
   const h = now.getHours();
@@ -304,7 +310,7 @@ function getStatusInfo(level){
 function initMap(){
   // 初期表示：茅ヶ崎駅正確座標・zoom17
   map = L.map('map',{zoomControl:false,attributionControl:false})
-          .setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17);
+          .setView([35.33031814797218, 139.40650049269422], 17);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
   map.on('click', ()=>setSheetHeight('small'));
 
@@ -345,14 +351,8 @@ function initMap(){
       </div>
     `);
 
-  // みーちゃんボタン：addEventListener方式でイベント競合回避
-  document.getElementById('person-btn').addEventListener('click', focusPerson);
-}
-
-// みーちゃんタップ → 茅ヶ崎駅正確座標へ戻る
-function focusPerson(){
-  map.setView([CHIGASAKI_STATION_LAT, CHIGASAKI_STATION_LNG], 17, {animate:true, duration:0.8});
-  setSheetHeight('small');
+  // 地図上のみーちゃんピンからも茅ヶ崎駅に戻る（二重対策）
+  personMarker.on('click', window.focusPerson);
 }
 
 function updateHeatmap(){
